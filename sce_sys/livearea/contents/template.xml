@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<livearea style="a5" format-ver="01.00" content-rev="1">
+<livearea style="psmobile" format-ver="01.00" content-rev="1">
 	<livearea-background>
 		<image>bg.png</image>
 	</livearea-background>
@@ -9,64 +9,35 @@
 		<startup-image>startup.png</startup-image>
 	</gate>
 	
-	<frame id="frame1">
-		<liveitem>
-			<text valign="bottom" align="left" text-align="left" text-valign="bottom" line-space="3" ellipsis="on">
-				<str color="#546293" size="50" bold="on" shadow="on"></str>
-			</text>
-		</liveitem>
-	</frame>
-	
 	<frame id="frame2">
 		<liveitem>
-			<text valign="top" align="left" text-align="left" text-valign="top" line-space="2" ellipsis="on">
-				<str size="22" color="#546293" shadow="on"></str>
+			<text valign="bottom" align="left" text-align="left" text-valign="bottom" line-space="3" ellipsis="on">
+				<str color="#546293" size="50" bold="on" shadow="on">VitaCord</str>
 			</text>
 		</liveitem>
 	</frame>
-	
 	
 	<frame id="frame3">
 		<liveitem>
-			<text align="left" text-align="right" margin-top="22" word-wrap="off" ellipsis="on">
-				<str size="18" color="#546293" shadow="on"></str>
+			<text valign="top" align="left" text-align="left" text-valign="top" line-space="2" ellipsis="on">
+				<str size="22" color="#546293" shadow="on">by coderx3</str>
 			</text>
 		</liveitem>
 	</frame>
-	
+		
 	<frame id="frame4">
 		<liveitem>
-			<text align="left" text-align="right" margin-top="18" word-wrap="off" ellipsis="on">
-				<str size="18" color="#546293" shadow="on"></str>
-			</text>
-		</liveitem>
-	</frame>
-	
-	<frame id="frame5">
-		<liveitem>
-			<text align="left" text-align="right" word-wrap="off" ellipsis="on">
-				<str size="18" color="#546293" shadow="on"></str>
-			</text>
-		</liveitem>
-	</frame>
-	
-	<frame id="frame6">
-		<liveitem>
 			<text align="left" text-align="left" word-wrap="off" ellipsis="on">
-				<str size="18"  oblique="on" color="#546293" shadow="on"></str>
+				<str size="18" color="#546293" shadow="on">v1.05</str>
 			</text>
 		</liveitem>
 	</frame>
 	
-	<frame id="frame7">
+		<frame id="frame5">
 		<liveitem>
-			<text align="right" text-align="right" word-wrap="off" ellipsis="on" margin-bottom="6" margin-right="6">
-				<str bold="on" emboss="on" size="32.0" color="#546293" shadow="on"></str>
+			<text align="right" text-align="left" word-wrap="off" ellipsis="on">
+				<str size="18" color="#546293" shadow="on">LiveArea by T3CHNOLOG1C</str>
 			</text>
 		</liveitem>
 	</frame>
-	
-	
-	
-	
 </livearea>
