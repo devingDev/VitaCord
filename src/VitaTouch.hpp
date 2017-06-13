@@ -8,8 +8,8 @@
 #define SLEEP_CLICK_NORMAL 150000
 #define SLEEP_CLICK_EXTENDED 350000
 
-#define MIN_DIST_TO_SCROLL_Y 3
-#define MIN_DIST_TO_SCROLL_X 3
+#define MIN_DIST_TO_SCROLL_Y 2
+#define MIN_DIST_TO_SCROLL_X 2
 
 class VitaTouch{
 	public:

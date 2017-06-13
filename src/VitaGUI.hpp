@@ -31,6 +31,7 @@
 
 #define FRAMES_LOADING_IMAGE 34
 
+#define CLICKED_MESSAGE 2500
 #define CLICKED_DM_ICON 50000
 #define CLICKED_MESSAGE_INPUT 1221
 
@@ -86,6 +87,10 @@ class VitaGUI{
 		
 		
 		void setUserInfo();
+		
+		
+		bool clickedMessage = false;
+		messagebox deleteMessageBox;
 	
 	private:
 		

@@ -41,6 +41,8 @@ typedef struct{
 	int messageHeight;
 	std::string username;
 	std::string content;
+	std::string channelID;
+	std::string messageID;
 }messagebox;
 
 typedef struct{

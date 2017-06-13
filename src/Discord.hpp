@@ -113,6 +113,9 @@ class Discord{
 		int currentDirectMessage = 0;
 		bool sendMessage(std::string msg);
 		bool sendDirectMessage(std::string msg);
+		
+		bool deleteMessage(std::string channelID , std::string messageID);
+		
 		bool refreshMessages();
 		bool refreshDirectMessages();
 		bool refreshCurrentDirectMessages();

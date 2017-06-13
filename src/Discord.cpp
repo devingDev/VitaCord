@@ -51,10 +51,20 @@ bool Discord::sendMessage(std::string msg){
 	VitaNet::http_response sendmessageresponse = vitaNet.curlDiscordPost(sendMessageUrl , postData , token);
 	if(sendmessageresponse.httpcode == 200){
 		debugNetPrintf(DEBUG , "Message SENT!\n" );
-		
+		return true;
 	}
-	return true;
+	return false;
 }
+
+bool Discord::deleteMessage(std::string channelID , std::string messageID){
+	std::string deleteMessageUrl = "https://discordapp.com/api/channels/" + channelID + "/messages/" + messageID;
+	VitaNet::http_response deletemessageresponse = vitaNet.curlDiscordDelete(deleteMessageUrl , token);
+	if(deletemessageresponse.httpcode == 204){
+		return true;
+	}
+	return false;
+}
+
 
 bool Discord::refreshMessages(){
 	

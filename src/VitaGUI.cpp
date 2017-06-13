@@ -348,9 +348,20 @@ void VitaGUI::Draw(){
 		// MESSAGES
 		DrawMessages();
 		
+		
+		// DELETEMSG
+		if(clickedMessage){
+			vita2d_draw_rectangle(deleteMessageBox.x , messageScrollY + deleteMessageBox.y , deleteMessageBox.w , deleteMessageBox.h , RGBA8(0 , 0 , 0 , 255));
+			vita2d_font_draw_text(vita2dFont[25] , deleteMessageBox.x + 64 , static_cast<int>( messageScrollY + deleteMessageBox.y + deleteMessageBox.h - 8) , RGBA8(255,0,0,255), 25 , "Delete"); 
+		}
+		
+		
 		// TOP sidepanel to hide guilds underneath
 		vita2d_draw_rectangle(0, 0, 230, 100, RGBA8(46, 49, 54, 255));
 		vita2d_draw_rectangle(0, 99, 230, 1, RGBA8(5, 5, 6, 255));
+		
+		
+		
 		
 		// BOTTOM SIDEPANEL
 		vita2d_draw_rectangle(0, 479, 230, 1, RGBA8(5, 5, 6, 255));
@@ -364,11 +375,15 @@ void VitaGUI::Draw(){
 		
 		// maybe add something on the big right 
 		
+		
+		
 		/// STATBAR
 		DrawStatusBar();
 		
 		// MESSAGEINPUT
 		vita2d_draw_texture(messageInputImage, 230, 473);
+		
+
 		
 	}else if(state == 6){
 
@@ -685,9 +700,13 @@ int VitaGUI::click(int x , int y){
 			return CLICKED_DM_ICON;
 		}
 		
+		if( x > inputboxMessageInput.x && y < inputboxMessageInput.x + inputboxMessageInput.w){
+			if( y > inputboxMessageInput.y && y < inputboxMessageInput.y + inputboxMessageInput.h){
+				return CLICKED_MESSAGE_INPUT;
+			}
+		}
 		
-		
-		if( y < 515  &&  y > 99){
+		if( y < 515  &&  y > 99 && x < 230){
 			for(unsigned int i = 0 ; i < channelBoxes.size() ; i++){
 				if( x  > channelBoxes[i].x && x  < channelBoxes[i].x + channelBoxes[i].w){
 					if( y  > channelBoxes[i].y && y  < channelBoxes[i].y + channelBoxes[i].h){
@@ -697,12 +716,53 @@ int VitaGUI::click(int x , int y){
 			}
 		}
 		
-		if( x > inputboxMessageInput.x && y < inputboxMessageInput.x + inputboxMessageInput.w){
-			if( y > inputboxMessageInput.y && y < inputboxMessageInput.y + inputboxMessageInput.h){
-				return CLICKED_MESSAGE_INPUT;
+		if(clickedMessage){
+			if( x > deleteMessageBox.x && x < deleteMessageBox.x + deleteMessageBox.w){
+				if( y > messageScrollY + deleteMessageBox.y && y < messageScrollY + deleteMessageBox.y + deleteMessageBox.h){
+					debugNetPrintf(DEBUG,"DELETING MESSAGE!\n");
+					discordPtr->deleteMessage(deleteMessageBox.channelID , deleteMessageBox.messageID);
+					debugNetPrintf(DEBUG,"DELETED MESSAGE!!!\n");
+					clickedMessage = false;
+					
+					return -1;
+				}
+				
+			}
+			
+		}
+
+		
+		if( y < 515  &&  y > 30 && x > 230){
+			for(unsigned int i = 0 ; i < messageBoxes.size() ; i++){
+				if( messageScrollX + x  > messageBoxes[i].x && messageScrollX + x  < messageBoxes[i].x + messageBoxes[i].w){
+					if( (-messageScrollY) + y  > messageBoxes[i].y && (-messageScrollY) + y  < messageBoxes[i].y + messageBoxes[i].h){
+						
+						if( clickedMessage ){
+							debugNetPrintf(DEBUG , "un-clicked message\n");
+							clickedMessage = false;
+						}else{
+							debugNetPrintf(DEBUG , "clicked message : \n");
+							debugNetPrintf(DEBUG , messageBoxes[i].content.c_str());
+							debugNetPrintf(DEBUG , " \n");
+							clickedMessage = true;
+							deleteMessageBox.w = 220;
+							deleteMessageBox.h = 64;
+							
+							deleteMessageBox.y = messageBoxes[i].y + 8;//static_cast<int>( messageBoxes[i].y + (messageBoxes[i].h / 2 ) ); // "updating" height in draw call so => - messageScrollY
+							if(x > 704){
+								deleteMessageBox.x = 704;
+							}else{
+								deleteMessageBox.x = x;
+							}
+							deleteMessageBox.messageID = messageBoxes[i].messageID;
+							deleteMessageBox.channelID = messageBoxes[i].channelID;
+						}
+						
+						return -1;
+					}
+				}
 			}
 		}
-		
 		
 	}else if(state == 6){
 		
@@ -727,6 +787,15 @@ int VitaGUI::click(int x , int y){
 			//COMMENT debugNetPrintf(DEBUG, "clicked dmicon\n");
 			return CLICKED_DM_ICON;
 		}
+		
+		
+		if( x > inputboxMessageInput.x && y < inputboxMessageInput.x + inputboxMessageInput.w){
+			if( y > inputboxMessageInput.y && y < inputboxMessageInput.y + inputboxMessageInput.h){
+				//COMMENT debugNetPrintf(DEBUG, "clicked mniput\n");
+				return CLICKED_MESSAGE_INPUT;
+			}
+		}
+		
 		if( y < 515  &&  y > 99){
 			for(unsigned int i = 0 ; i < directMessageBoxes.size() ; i++){
 				if( x  > directMessageBoxes[i].x && x  < directMessageBoxes[i].x + directMessageBoxes[i].w){
@@ -737,12 +806,7 @@ int VitaGUI::click(int x , int y){
 			}
 		}
 		
-		if( x > inputboxMessageInput.x && y < inputboxMessageInput.x + inputboxMessageInput.w){
-			if( y > inputboxMessageInput.y && y < inputboxMessageInput.y + inputboxMessageInput.h){
-				//COMMENT debugNetPrintf(DEBUG, "clicked mniput\n");
-				return CLICKED_MESSAGE_INPUT;
-			}
-		}
+
 		
 		// ? messages
 	}
@@ -778,8 +842,8 @@ void VitaGUI::SetState(int s){
 		messageScrollY = 0;
 		directMessageMessagesScrollY = 0;
 		directMessageScrollY = 0;
-		setMessageBoxes();
 		messageScrollSet = false;
+		setMessageBoxes();
 	}else if(state == 7 && lastState == 6){
 		messageScrollY = 0;
 		directMessageMessagesScrollY = 0;
@@ -822,8 +886,8 @@ void VitaGUI::setGuildBoxes(){
 		boxG.name = discordPtr->guilds[i].name;
 		guildBoxes.push_back(boxG);
 	}
-	guildScrollYMin = -((guildBoxes.size()-1)*GUILD_HEIGHT - 100);
-	guildScrollYMax = 100;
+	guildScrollYMin = -((guildBoxes.size())*GUILD_HEIGHT - 100);
+	guildScrollYMax = 0;
 }
 void VitaGUI::setChannelBoxes(){
 	channelBoxes.clear();
@@ -841,8 +905,8 @@ void VitaGUI::setChannelBoxes(){
 			amount++;
 		}
 	}
-	channelScrollYMin = -((amount-1)*CHANNEL_HEIGHT - 100) ;
-	channelScrollYMax = 100;
+	channelScrollYMin = -((amount)*CHANNEL_HEIGHT - 100) ;
+	channelScrollYMax = 0;
 }
 bool VitaGUI::setMessageBoxes(){
 		
@@ -856,7 +920,7 @@ bool VitaGUI::setMessageBoxes(){
 		for(unsigned int i = 0; i < discordPtr->guilds[discordPtr->currentGuild].channels[discordPtr->currentChannel].messages.size() ; i++){
 			messagebox boxC;
 			boxC.x = messageScrollX + 230;
-			boxC.y = messageScrollY + i * 64;
+			boxC.y = 40  + allHeight ; // 40 = statusbar height
 			boxC.username = discordPtr->guilds[discordPtr->currentGuild].channels[discordPtr->currentChannel].messages[i].author.username;
 			boxC.content = "";
 			boxC.lineCount = wordWrap( discordPtr->guilds[discordPtr->currentGuild].channels[discordPtr->currentChannel].messages[i].content , 80 , boxC.content);
@@ -868,11 +932,13 @@ bool VitaGUI::setMessageBoxes(){
 			boxC.w = 730;
 			boxC.h = boxC.messageHeight;
 			
+			boxC.channelID = discordPtr->guilds[discordPtr->currentGuild].channels[discordPtr->currentChannel].id;
+			boxC.messageID = discordPtr->guilds[discordPtr->currentGuild].channels[discordPtr->currentChannel].messages[i].id;
 			
 			messageBoxes.push_back(boxC);
 		}
 		messageScrollYMin =  -( allHeight )  + 430; //-( allHeight )
-		messageScrollYMax = 400;
+		messageScrollYMax = 0;
 		
 		if(!messageScrollSet){
 			messageScrollSet = true;
@@ -979,8 +1045,8 @@ void VitaGUI::setDirectMessageBoxes(){
 		boxDM.dmIndex = i;
 		directMessageBoxes.push_back(boxDM);
 	}
-	directMessageMessagesScrollYMin = -((directMessageBoxes.size()-1)*CHANNEL_HEIGHT - 100) ;
-	directMessageMessagesScrollYMax = 100;
+	directMessageMessagesScrollYMin = -((directMessageBoxes.size())*CHANNEL_HEIGHT - 100) ;
+	directMessageMessagesScrollYMax = 0;
 	//directMessageScrollYMin = -((discordPtr->directMessages.size()-1)*GUILD_HEIGHT -300) ;
 	
 }
@@ -1002,7 +1068,7 @@ void VitaGUI::setDirectMessageMessagesBoxes(){
 		for(unsigned int i = 0; i < discordPtr->directMessages[discordPtr->currentDirectMessage].messages.size() ; i++){
 			messagebox boxC;
 			boxC.x = directMessageMessagesScrollX + 230;
-			boxC.y = directMessageMessagesScrollY + i * 64;
+			boxC.y = directMessageMessagesScrollY + allHeight;
 			boxC.username = discordPtr->directMessages[discordPtr->currentDirectMessage].messages[i].author.username;
 			boxC.content = "";
 			boxC.lineCount = wordWrap( discordPtr->directMessages[discordPtr->currentDirectMessage].messages[i].content , 80 , boxC.content);
@@ -1018,8 +1084,8 @@ void VitaGUI::setDirectMessageMessagesBoxes(){
 			
 			directMessageMessagesBoxes.push_back(boxC);
 		}
-		directMessageMessagesScrollYMin =  -( allHeight  ) + 430; //-( allHeight )
-		directMessageMessagesScrollYMax =   100; 
+		directMessageMessagesScrollYMin =  -( allHeight - 100  ); //-( allHeight )
+		directMessageMessagesScrollYMax =   0; 
 		
 		
 		if(!directMessageMessagesScrollSet){
@@ -1125,11 +1191,10 @@ void VitaGUI::DrawChannelsOnSidebar(){
 
 void VitaGUI::DrawMessages(){
 	
-	int yPos = 0,height;
+	int yPos = messageScrollY + 40 , height;
 	unsigned int messageBoxesAmount = messageBoxes.size();
 	
 	//for(int i =  messageBoxes.size() ; i >= 0  ; i--){
-	yPos = messageScrollY + 40;
 	for(unsigned int i =  0 ; i < messageBoxesAmount ; i++){
 		
 		//COMMENT debugNetPrintf(DEBUG, "MESSAGE STEP 1\n");
@@ -1219,8 +1284,8 @@ void VitaGUI::DrawDirectMessageMessages(){
 	yPos = directMessageMessagesScrollY + 40;
 	for(unsigned int i =  0 ; i < messageBoxesAmount ; i++){
 		
-			//COMMENT debugNetPrintf(DEBUG, "MESSAGE STEP 1\n");
-			height = directMessageMessagesBoxes[i].messageHeight;
+		//COMMENT debugNetPrintf(DEBUG, "MESSAGE STEP 1\n");
+		height = directMessageMessagesBoxes[i].messageHeight;
 		
 		//COMMENT debugNetPrintf(DEBUG, "calculating %d of %d\n", i, messageBoxesAmount);
 		if(yPos < MAX_DRAW_HEIGHT && yPos > MIN_DRAW_HEIGHT){

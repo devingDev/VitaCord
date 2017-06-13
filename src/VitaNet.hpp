@@ -29,6 +29,7 @@ class VitaNet{
 		VitaNet();
 		~VitaNet();
 		http_response curlDiscordGet(std::string url , std::string authtoken);
+		http_response curlDiscordDelete(std::string url , std::string authtoken);
 		http_response curlDiscordPost(std::string url , std::string postdata , std::string authtoken);
 
 

@@ -38,6 +38,68 @@ size_t writefunc(void *ptr, size_t size, size_t nmemb, struct stringcurl *s)
   return size*nmemb;
 }
 
+VitaNet::http_response VitaNet::curlDiscordDelete(std::string url , std::string authtoken){
+	
+	VitaNet::http_response resp;
+	std::string authorizationHeader = "Authorization: " + authtoken;
+	
+	//DBG
+	//url = "http://jaynapps.com/psvita/httpdump.php";
+	
+	CURL *curl;
+	CURLcode res;
+	curl = curl_easy_init();
+	if(curl) {
+		struct stringcurl body;
+		init_string(&body);
+		struct stringcurl header;
+		init_string(&header);
+		curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
+		curl_easy_setopt(curl, CURLOPT_CUSTOMREQUEST, "DELETE");
+		curl_easy_setopt(curl, CURLOPT_USERAGENT, "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36");
+		curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 0L);
+		curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0L);
+		curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT, 10L);
+		curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
+		curl_easy_setopt(curl, CURLOPT_NOPROGRESS, 1L);
+		curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, writefunc);
+		curl_easy_setopt(curl, CURLOPT_WRITEDATA, &body);
+		curl_easy_setopt(curl, CURLOPT_HEADERFUNCTION, writefunc);
+		curl_easy_setopt(curl, CURLOPT_HEADERDATA, &header);
+		struct curl_slist *headerchunk = NULL;
+		headerchunk = curl_slist_append(headerchunk, "Accept: */*");
+		headerchunk = curl_slist_append(headerchunk, "Content-Type: application/json");
+		headerchunk = curl_slist_append(headerchunk, "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36");
+		headerchunk = curl_slist_append(headerchunk, authorizationHeader.c_str());
+		headerchunk = curl_slist_append(headerchunk, "Host: discordapp.com");
+		headerchunk = curl_slist_append(headerchunk, "Content-Length: 0");
+		res = curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headerchunk);
+		
+		
+		
+		res = curl_easy_perform(curl);
+		curl_easy_getinfo (curl, CURLINFO_RESPONSE_CODE, &resp.httpcode);
+		
+		resp.header = std::string(header.ptr , header.len);
+		resp.body = std::string(body.ptr , body.len);
+		
+		if(res != CURLE_OK){
+			//fprintf(stderr, "curl_easy_perform() failed: %s\n", curl_easy_strerror(res));
+
+			
+		}else{
+			
+		}
+		
+		
+	}else{
+		
+	}
+	curl_easy_cleanup(curl);
+	
+	return resp;
+}
+
 VitaNet::http_response VitaNet::curlDiscordGet(std::string url , std::string authtoken){
 	
 	VitaNet::http_response resp;
