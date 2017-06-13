@@ -1,34 +1,68 @@
-# VitaCord
+# VitaCord, a Discord Client for PS Vita / PS TV.
 
-Client on Vita
+* If something is wrong ask in [Vita Hacking Discord](https://discord.gg/JXEKeg6), at #henkaku on [FreeNode IRC](https://webchat.freenode.net) or open a GitHub  Issue. ( <-- Easiest )
 
+#### Features:
 
-Credits for helping me: Arkanite , XandridFire , SKGleba. Rinnegatamante , xyz , noname120 , davee , T3CHNOLOG1C and more if I remember :>
+* Send and recieve messages in Guilds / Servers & Direct Messages
 
-If something is wrong ask in vita hacking discord or in #henkaku or open an issue (<-easiest)
+#### Screenshots:
 
-![alt text](http://jaynapps.com/imgupload/uploads/c69e490109bff94c47476d653eed83ba.jpg)
-![alt text](http://jaynapps.com/imgupload/uploads/28cfb141750d5c2102b67d292989e01c.jpg)
-![alt text](http://jaynapps.com/imgupload/uploads/f8d5168058e915aa66e49d04e05d98c7.jpg)
+![Login Screen](http://jaynapps.com/imgupload/uploads/c69e490109bff94c47476d653eed83ba.jpg)
+![Sending and Recieving Messages in Servers](http://jaynapps.com/imgupload/uploads/28cfb141750d5c2102b67d292989e01c.jpg)
+![Sending and Recieving Messages in DM's](http://jaynapps.com/imgupload/uploads/f8d5168058e915aa66e49d04e05d98c7.jpg)
 
-CHANGELOG:
+#### Credits
 
-2.0 Soon™ Full new UI - made by Arkanite. Thanks for your help guys :D
+* coderx3 (devingDev)
+* Arkanite
+* XandridFire
+* SKGleba
+* Rinnegatamante
+* xyz
+* noname120
+* davee
+* T3CHNOLOG1C
 
+#### Changelog:
 
-1.06 Limited rendering to a MAX/MIN Y Axis to prevent crashing when to many channels are loaded.
-	Also fixed keyboard.
+##### 1.5:
 
-1.05 new livearea from T3CHNOLOGIC , multithreading ( no freezes when it refreshes channel messages)
-	tried out wordwrapping, does not work with long lines without spaces >_>
-	password is now hidden :>
+* Full UI by [Arkanite](https://github.com/ArkSource).
+* System software stability during use of some features has been improved.™
 
-1.04 rewrite + new UI + added DM (+ Press L to switch fonts , will be removed soon )
+####1.06:
 
-1.03 added 2FA
+* Limited rendering to a MAX/MIN Y-Axis to prevent crashing when too many channels are loaded.
+* Fixed keyboard bugs.
 
-1.02 added logging to file for error reporting
+## 1.05:
 
-1.01 added scrolling , disable voice channels
+* LiveArea from [T3CHNOLOGIC](https://github.com/T3CHNOLOG1C/).
+* Multithreading, so the app doesnt softlock when it refreshes channel messages)
+* Implemented word wrapping, does not work with long lines without spaces)
+* Password is now hidden.
 
-1.00 initial release
+#### 1.04:
+
+* Under the hood code rewrite
+* New UI
+* Added the ability to send an recieve DMs
+* Press L to switch fonts. (Will be removed soon.)
+
+#### 1.03
+
+* Added 2FA.
+
+#### 1.02:
+
+* Added logging to file for error reporting.
+
+#### 1.01:
+
+* Added scrolling.
+* Disable voice channels, since they do not work currently.
+
+#### 1.00:
+
+* initial release
