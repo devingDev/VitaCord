@@ -36,7 +36,7 @@
 * Limited rendering to a MAX/MIN Y-Axis to prevent crashing when too many channels are loaded.
 * Fixed keyboard bugs.
 
-## 1.05:
+### 1.05:
 
 * LiveArea from [T3CHNOLOGIC](https://github.com/T3CHNOLOG1C/).
 * Multithreading, so the app doesnt softlock when it refreshes channel messages)
