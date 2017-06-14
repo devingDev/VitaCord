@@ -50,7 +50,7 @@
 * Added the ability to send an recieve DMs
 * Press L to switch fonts. (Will be removed soon.)
 
-#### 1.03
+#### 1.03:
 
 * Added 2FA.
 
@@ -65,4 +65,4 @@
 
 #### 1.00:
 
-* initial release
+* Initial Release.
