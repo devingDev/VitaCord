@@ -76,6 +76,7 @@ VitaGUI::VitaGUI(){
 	statbarBatteryChargeImage = vita2d_load_PNG_file("app0:assets/images/Vitacord-statbar-battery-charge.png");
 	sidepanelStateIconImage = vita2d_load_PNG_file("app0:assets/images/Vitacord-sidebar-default-usericon.png");
 	messageInputImage = vita2d_load_PNG_file("app0:assets/images/Vitacord-messager-input.png");
+	defaultBinaryThumbnail = vita2d_load_PNG_file("app0:assets/images/BinaryFile.png");
 	
 	loginInputs.clear();
 	
@@ -919,6 +920,7 @@ bool VitaGUI::setMessageBoxes(){
 		discordPtr->refreshedMessages = false;
 		messageBoxes.clear();
 		for(unsigned int i = 0; i < discordPtr->guilds[discordPtr->currentGuild].channels[discordPtr->currentChannel].messages.size() ; i++){
+			
 			messagebox boxC;
 			boxC.x = messageScrollX + 230;
 			boxC.y = 40  + allHeight ; // 40 = statusbar height
@@ -927,7 +929,6 @@ bool VitaGUI::setMessageBoxes(){
 			boxC.lineCount = wordWrap( discordPtr->guilds[discordPtr->currentGuild].channels[discordPtr->currentChannel].messages[i].content , 80 , boxC.content);
 			textHeight = boxC.lineCount * vita2d_font_text_height(vita2dFont[15], 15, boxC.content.c_str());
 			boxC.messageHeight = max(64, textHeight + topMargin + bottomMargin);
-			allHeight += boxC.messageHeight;
 			
 			
 			boxC.w = 730;
@@ -936,12 +937,50 @@ bool VitaGUI::setMessageBoxes(){
 			boxC.channelID = discordPtr->guilds[discordPtr->currentGuild].channels[discordPtr->currentChannel].id;
 			boxC.messageID = discordPtr->guilds[discordPtr->currentGuild].channels[discordPtr->currentChannel].messages[i].id;
 			
+			if( ! discordPtr->guilds[discordPtr->currentGuild].channels[discordPtr->currentChannel].messages[i].attachment.isEmpty ){
+				if(discordPtr->guilds[discordPtr->currentGuild].channels[discordPtr->currentChannel].messages[i].attachment.isData ){
+					boxC.showAttachmentAsBinary = true;
+					boxC.showAttachmentAsImage = false;
+					//boxC.attachmentThumbnail =  defaultBinaryThumbnail;// default thumbnail ( txt or binary indicator )
+					boxC.attachmentReadableSize = discordPtr->guilds[discordPtr->currentGuild].channels[discordPtr->currentChannel].messages[i].attachment.readableSize;
+					boxC.attachmentReadableSizeUnit = discordPtr->guilds[discordPtr->currentGuild].channels[discordPtr->currentChannel].messages[i].attachment.readableSizeUnit;
+					boxC.attachmentFilename = discordPtr->guilds[discordPtr->currentGuild].channels[discordPtr->currentChannel].messages[i].attachment.filename;
+					boxC.attachmentFullText = std::to_string(  boxC.attachmentReadableSize ) + " " +  boxC.attachmentReadableSizeUnit + " " + boxC.attachmentFilename;
+					
+					// adjust box height !
+					boxC.messageHeight += ATTACHMENT_HEIGHT + 16; // 16 = margin
+				}else if ( discordPtr->guilds[discordPtr->currentGuild].channels[discordPtr->currentChannel].messages[i].attachment.isImage ){
+					if( discordPtr->guilds[discordPtr->currentGuild].channels[discordPtr->currentChannel].messages[i].attachment.loadedThumbImage ){
+						boxC.showAttachmentAsImage = true;
+						boxC.showAttachmentAsBinary = false;
+						//boxC.attachmentThumbnail = discordPtr->guilds[discordPtr->currentGuild].channels[discordPtr->currentChannel].messages[i].attachment.thumbnail;
+						boxC.attachmentReadableSize = discordPtr->guilds[discordPtr->currentGuild].channels[discordPtr->currentChannel].messages[i].attachment.readableSize;
+						boxC.attachmentReadableSizeUnit = discordPtr->guilds[discordPtr->currentGuild].channels[discordPtr->currentChannel].messages[i].attachment.readableSizeUnit;
+						boxC.attachmentFilename = discordPtr->guilds[discordPtr->currentGuild].channels[discordPtr->currentChannel].messages[i].attachment.filename;
+						boxC.attachmentFullText = std::to_string(  boxC.attachmentReadableSize ) + " " +  boxC.attachmentReadableSizeUnit + " " + boxC.attachmentFilename;
+					
+						// adjust box height !
+						boxC.messageHeight += ATTACHMENT_HEIGHT + 16;
+					}
+				}else{
+					boxC.showAttachmentAsImage = false;
+					boxC.showAttachmentAsBinary = false;
+				}
+			}else{
+				boxC.showAttachmentAsImage = false;
+				boxC.showAttachmentAsBinary = false;
+			}
+			boxC.messageID = discordPtr->guilds[discordPtr->currentGuild].channels[discordPtr->currentChannel].messages[i].id;
+			
+			
+			allHeight += boxC.messageHeight;
+			
 			messageBoxes.push_back(boxC);
 		}
 		messageScrollYMin =  -( allHeight )  + 430; //-( allHeight )
 		messageScrollYMax = 0;
 		
-		if(!messageScrollSet){
+		if( !messageScrollSet ){
 			messageScrollSet = true;
 			messageScrollY = messageScrollYMin;
 		}
@@ -1204,6 +1243,7 @@ void VitaGUI::DrawMessages(){
 		//COMMENT debugNetPrintf(DEBUG, "calculating %d of %d\n", i, messageBoxesAmount);
 		if(yPos < MAX_DRAW_HEIGHT && yPos > MIN_DRAW_HEIGHT){
 			
+			
 			if(i == messageBoxesAmount-1){
 				
 				vita2d_draw_rectangle(242, yPos + height - 1, 706, 1, RGBA8(120, 115, 120, 255)); // after last message
@@ -1223,6 +1263,22 @@ void VitaGUI::DrawMessages(){
 				vita2d_font_draw_text(vita2dFont[15], 283, yPos + 26, RGBA8(255, 255, 255, 255), 15, messageBoxes[i].username.c_str());
 			//COMMENT debugNetPrintf(DEBUG, "MESSAGE STEP 5\n");
 				vita2d_font_draw_text(vita2dFont[15], 293, yPos + 50, RGBA8(255, 255, 255, 255), 15, messageBoxes[i].content.c_str());
+				 
+				
+			if( messageBoxes[i].showAttachmentAsImage ){
+				vita2d_draw_rectangle( 240 , yPos + height - ATTACHMENT_HEIGHT - 16 , ATTACHMENT_HEIGHT , ATTACHMENT_HEIGHT , RGBA8(0x9F , 0x9F , 0x9F , 0xFF) );
+				if ( discordPtr->guilds[discordPtr->currentGuild].channels[discordPtr->currentChannel].messages[i].attachment.thumbnail != NULL ){
+					vita2d_draw_texture( discordPtr->guilds[discordPtr->currentGuild].channels[discordPtr->currentChannel].messages[i].attachment.thumbnail , 240 , yPos + height - ATTACHMENT_HEIGHT - 16);
+				}
+				vita2d_font_draw_text(vita2dFont[17] ,  240 + ATTACHMENT_HEIGHT + 8 , yPos + height - 32 , RGBA8(255, 255, 255, 255), 17 , messageBoxes[i].attachmentFullText.c_str() );
+			}else if( messageBoxes[i].showAttachmentAsBinary ){
+				vita2d_draw_rectangle( 240 , yPos + height - ATTACHMENT_HEIGHT - 16 , ATTACHMENT_HEIGHT , ATTACHMENT_HEIGHT , RGBA8(0x9F , 0x9F , 0x9F , 0xFF) );
+				if (  defaultBinaryThumbnail != NULL){
+					vita2d_draw_texture( defaultBinaryThumbnail , 240 , yPos + height - ATTACHMENT_HEIGHT - 16);
+				}
+				vita2d_font_draw_text(vita2dFont[17] ,  240 + ATTACHMENT_HEIGHT + 8 , yPos + height - 32 , RGBA8(255, 255, 255, 255), 17 , messageBoxes[i].attachmentFullText.c_str() );
+			}
+				
 			//COMMENT debugNetPrintf(DEBUG, "MESSAGE STEP 6\n");
 			//vita2d_draw_texture( guildsBGImage , messageScrollX + 128 , messageScrollY + i * 128);
 			//vita2d_pgf_draw_text(pgf, messageScrollX + 256, messageScrollY + i * 128 + 96, RGBA8(255,255,255,255), 1.0f, discordPtr->guilds[discordPtr->currentGuild].channels[discordPtr->currentChannel].messages[i].content.c_str());

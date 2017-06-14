@@ -12,6 +12,7 @@
 #include <stdlib.h>
 #include <algorithm>   // for reverse
 #include <debugnet.h>
+#include <psp2/io/fcntl.h> 
 
 #include <cctype>
 #include "json.hpp"
@@ -70,11 +71,13 @@ bool Discord::refreshMessages(){
 	
 	//debugNetPrintf(DEBUG , "checking time to refresh messages\n" );
 	currentTimeMS = osGetTimeMS();
-	if(currentTimeMS - lastFetchTimeMS > fetchTimeMS || forceRefreshMessages){
+	if(( currentTimeMS - lastFetchTimeMS > fetchTimeMS || forceRefreshMessages ) && !currentlyRefreshingMessages){
 		//debugNetPrintf(DEBUG , "get new messages\n" );
 		
 		refreshingMessages = true;
+		currentlyRefreshingMessages = true;
 		getChannelMessages(currentChannel);
+		currentlyRefreshingMessages = false;
 		lastFetchTimeMS = osGetTimeMS();
 		refreshedMessages = true;
 		refreshingMessages = false;
@@ -347,7 +350,12 @@ void Discord::parseMessageContentEmoji(message *m , std::string str){
 
 void Discord::getChannelMessages(int channelIndex){
 	currentChannel = channelIndex;
-	std::string channelMessagesUrl = "https://discordapp.com/api/channels/" + guilds[currentGuild].channels[currentChannel].id + "/messages";
+	std::string channelMessagesUrl = "https://discordapp.com/api/channels/" + guilds[currentGuild].channels[currentChannel].id + "/messages?limit=100";
+	
+	if(guilds[currentGuild].channels[currentChannel].gotMessagesOnce){
+		channelMessagesUrl += "&after=" + guilds[currentGuild].channels[currentChannel].last_message_id;
+	}
+	
 	VitaNet::http_response channelmessagesresponse = vitaNet.curlDiscordGet(channelMessagesUrl , token);
 	logSD(channelmessagesresponse.body);
 	if(channelmessagesresponse.httpcode == 200){
@@ -356,70 +364,325 @@ void Discord::getChannelMessages(int channelIndex){
 		
 		
 		if(!j_complete.is_null()){
-			guilds[currentGuild].channels[currentChannel].messages.clear();
+			
+			//guilds[currentGuild].channels[currentChannel].messages.clear();
 			
 			for( int i = 0 ; i < messagesAmount ; i++){
-				guilds[currentGuild].channels[currentChannel].messages.push_back(message());
 				
-				if(!j_complete[i].is_null()){
+				int iR = messagesAmount - i - 1;
+				
+				message newMessage;  
+				
+				if(!j_complete[iR].is_null()){
 					
-					if(!j_complete[i]["timestamp"].is_null()){
-						guilds[currentGuild].channels[currentChannel].messages[i].timestamp = j_complete[i]["timestamp"].get<std::string>();
+					if(!j_complete[iR]["timestamp"].is_null()){
+						newMessage.timestamp = j_complete[iR]["timestamp"].get<std::string>();
 					}else{
-						guilds[currentGuild].channels[currentChannel].messages[i].timestamp = "0";
+						newMessage.timestamp = "0";
 					}
 					
-					if(!j_complete[i]["id"].is_null()){
-						guilds[currentGuild].channels[currentChannel].messages[i].id = j_complete[i]["id"].get<std::string>();
+					if(!j_complete[iR]["id"].is_null()){
+						newMessage.id = j_complete[iR]["id"].get<std::string>();
+						guilds[currentGuild].channels[currentChannel].last_message_id = newMessage.id;
 					}else{
-						guilds[currentGuild].channels[currentChannel].messages[i].id = "0";
+						newMessage.id = "0";
 					}
 					
-					if(!j_complete[i]["content"].is_null()){
+					if(!j_complete[iR]["content"].is_null()){
 						
 						//std::string str = 
 						//char * content = new char [str.length()+1];
 						//std::strcpy (content, str.c_str());
 						//char * contentUtf8 = new char [str.length()+1];
 						//utf16_to_utf8((uint16_t *)content , (uint8_t *) contentUtf8);
-						//parseMessageContentEmoji(&guilds[currentGuild].channels[currentChannel].messages[i] , j_complete[i]["content"].get<std::string>() );
-						guilds[currentGuild].channels[currentChannel].messages[i].content = j_complete[i]["content"].get<std::string>();
+						//parseMessageContentEmoji(&newMessage , j_complete[iR]["content"].get<std::string>() );
+						newMessage.content = j_complete[iR]["content"].get<std::string>();
 					}else{
-						guilds[currentGuild].channels[currentChannel].messages[i].content = "";
+						newMessage.content = "";
 					}
 					// author :
-					if(!j_complete[i]["author"]["username"].is_null()){
-						guilds[currentGuild].channels[currentChannel].messages[i].author.username = j_complete[i]["author"]["username"].get<std::string>();
+					if(!j_complete[iR]["author"]["username"].is_null()){
+						newMessage.author.username = j_complete[iR]["author"]["username"].get<std::string>();
 					}else{
-						guilds[currentGuild].channels[currentChannel].messages[i].author.username = "N/A";
+						newMessage.author.username = "N/A";
 					}
 					
-					if(!j_complete[i]["author"]["discriminator"].is_null()){
-						guilds[currentGuild].channels[currentChannel].messages[i].author.discriminator = j_complete[i]["author"]["discriminator"].get<std::string>();
+					if(!j_complete[iR]["author"]["discriminator"].is_null()){
+						newMessage.author.discriminator = j_complete[iR]["author"]["discriminator"].get<std::string>();
 					}else{
-						guilds[currentGuild].channels[currentChannel].messages[i].author.discriminator = "N/A";
+						newMessage.author.discriminator = "N/A";
 					}
 					
-					if(!j_complete[i]["author"]["id"].is_null()){
-						guilds[currentGuild].channels[currentChannel].messages[i].author.id = j_complete[i]["author"]["id"].get<std::string>();
+					if(!j_complete[iR]["author"]["id"].is_null()){
+						newMessage.author.id = j_complete[iR]["author"]["id"].get<std::string>();
 					}else{
-						guilds[currentGuild].channels[currentChannel].messages[i].author.id = "0";
+						newMessage.author.id = "0";
 					}
 					
-					if(!j_complete[i]["author"]["avatar"].is_null()){
-						guilds[currentGuild].channels[currentChannel].messages[i].author.avatar = j_complete[i]["author"]["avatar"].get<std::string>();
+					if(!j_complete[iR]["author"]["avatar"].is_null()){
+						newMessage.author.avatar = j_complete[iR]["author"]["avatar"].get<std::string>();
 					}else{
-						guilds[currentGuild].channels[currentChannel].messages[i].author.avatar = "0";
+						newMessage.author.avatar = "0";
 					}
+					
+					newMessage.attachment.isEmpty = true;
+					
+					if(!j_complete[iR]["attachments"].is_null()){
+						if(!j_complete[iR]["attachments"][0].is_null()){
+							
+							newMessage.attachment.isEmpty = false;
+							bool proxyAvailable = false;
+							bool filenameAvailable = false;
+							bool imageDimensionAvailable = false;
+							bool sizeAvailable = false;
+							bool urlAvailable = false;
+							
+							if(!j_complete[iR]["attachments"][0]["url"].is_null()){
+								newMessage.attachment.url = j_complete[iR]["attachments"][0]["url"].get<std::string>();
+								urlAvailable=true;
+							}else{
+								newMessage.attachment.url = "";
+							}
+							
+							if(!j_complete[iR]["attachments"][0]["proxy_url"].is_null()){
+								newMessage.attachment.proxy_url = j_complete[iR]["attachments"][0]["proxy_url"].get<std::string>();
+								proxyAvailable = true;
+							}else{
+								newMessage.attachment.proxy_url = "";
+							}
+							
+							if(!j_complete[iR]["attachments"][0]["filename"].is_null()){
+								newMessage.attachment.filename = j_complete[iR]["attachments"][0]["filename"].get<std::string>();
+								filenameAvailable = true;
+							}else{
+								newMessage.attachment.filename = "noname.png";
+							}
+							
+							if(!j_complete[iR]["attachments"][0]["id"].is_null()){
+								newMessage.attachment.id = j_complete[iR]["attachments"][0]["id"].get<std::string>();
+							}else{
+								newMessage.attachment.id = "";
+							}
+							
+							
+							if ( !j_complete[iR]["attachments"][0]["width"].is_null() ){
+								newMessage.attachment.width = j_complete[iR]["attachments"][0]["width"].get<int>();
+								imageDimensionAvailable = true;
+							} else {
+								newMessage.attachment.width = -1;
+							}
+							
+							if ( !j_complete[iR]["attachments"][0]["height"].is_null() ){
+								newMessage.attachment.height = j_complete[iR]["attachments"][0]["height"].get<int>();
+							} else {
+								newMessage.attachment.height = -1;
+							}
+							
+							if ( !j_complete[iR]["attachments"][0]["size"].is_null() ){
+								newMessage.attachment.size = j_complete[iR]["attachments"][0]["size"].get<int>();
+								sizeAvailable = true;
+								
+								if(newMessage.attachment.size > 1024*1024){
+									newMessage.attachment.readableSize = static_cast<int> (  newMessage.attachment.size / ( 1024 * 1024 ) );
+									newMessage.attachment.readableSizeUnit = "MiB";
+								}else if(newMessage.attachment.size > 1024){
+									newMessage.attachment.readableSize =  static_cast<int> (  newMessage.attachment.size / ( 1024 ) );
+									newMessage.attachment.readableSizeUnit = "KiB";
+								}else{
+									newMessage.attachment.readableSize =  static_cast<int> (  newMessage.attachment.size );
+									newMessage.attachment.readableSizeUnit = "Byte";
+								}
+								
+								
+							} else {
+								newMessage.attachment.size = -1;
+							}
+							
+							if ( proxyAvailable && filenameAvailable && imageDimensionAvailable ){
+								newMessage.attachment.isImage = true ;
+								newMessage.attachment.isData = false ;
+								int thumbW = 64;//static_cast<int>( 64 * ( newMessage.attachment.width / newMessage.attachment.height ) );
+								int thumbH = 64;
+								std::string thumbUrl = newMessage.attachment.proxy_url + "?width=" + std::to_string(thumbW) + "&height=" +std::to_string( thumbH );
+								debugNetPrintf( DEBUG , "Loading thumbnail : " );
+								debugNetPrintf( DEBUG , thumbUrl.c_str() );
+								std::string imageThumbFileName = "ux0:data/vitacord/attachments/thumbnails/" + newMessage.attachment.filename;
+								VitaNet::http_response thumbnailResponse = vitaNet.curlDiscordDownloadImage( thumbUrl , token , imageThumbFileName );
+								if( thumbnailResponse.httpcode == 200){
+									
+									
+									// check which format ! ( magic numbers check ) a little big , should make a function for it # TODO 
+									
+									int imageThumbFD = sceIoOpen( imageThumbFileName.c_str() , SCE_O_RDONLY , 0777 );
+									int MAGIC_BUFFER_SIZE = 50;
+									char magicNumberBuffer [MAGIC_BUFFER_SIZE];
+									sceIoRead(imageThumbFD , magicNumberBuffer , MAGIC_BUFFER_SIZE);
+									sceIoClose(imageThumbFD);
+									
+									// START OF MAGIC NUMBER CHECKER ! 
+									// BMP first :) 
+									if( magicNumberBuffer[0] == (char)0x42 ){
+										if( magicNumberBuffer[1] == 0x4D ){
+											newMessage.attachment.thumbnail = vita2d_load_BMP_file( imageThumbFileName.c_str() );
+											if( newMessage.attachment.thumbnail != NULL){
+												debugNetPrintf( DEBUG , "Could load bmp!");
+												newMessage.attachment.loadedThumbImage = true;
+											}
+										} 
+									} // now PNG : 
+									else if ( magicNumberBuffer[0] == (char)0x89 ){
+										if ( magicNumberBuffer[1] == 0x50 ){
+											if ( magicNumberBuffer[2] == 0x4E ){
+												if ( magicNumberBuffer[3] == 0x47 ){
+													if ( magicNumberBuffer[4] == 0x0D ){
+														if ( magicNumberBuffer[5] == 0x0A ){
+															if ( magicNumberBuffer[6] == 0x1A ){
+																if ( magicNumberBuffer[7] == 0x0A ){
+																	newMessage.attachment.thumbnail = vita2d_load_PNG_file( imageThumbFileName.c_str() );
+																	if( newMessage.attachment.thumbnail != NULL){
+																		debugNetPrintf( DEBUG , "Could load png!");
+																		newMessage.attachment.loadedThumbImage = true;
+																	}
+																}
+															}
+														}
+													}
+												}
+											}
+										}
+									} // now 3 different JPG magic numbers  [ raw | Exif | JFIF ]
+									else if( magicNumberBuffer[0] == (char)0xFF ){
+										if( magicNumberBuffer[1] == 0xD8 ){
+											if( magicNumberBuffer[2] == 0xFF ){
+												if( magicNumberBuffer[3] == 0xD8 ){
+													// ÿØÿÛ
+													newMessage.attachment.thumbnail = vita2d_load_JPEG_file( imageThumbFileName.c_str() );
+													if( newMessage.attachment.thumbnail != NULL){
+														debugNetPrintf( DEBUG , "Could load jpg [ raw ] !");
+														newMessage.attachment.loadedThumbImage = true;
+													}
+													
+												}
+												else if( magicNumberBuffer[3] == (char)0xE0 ){
+													if( magicNumberBuffer[6] == 0x4A ){
+														if( magicNumberBuffer[7] == 0x46 ){
+															if( magicNumberBuffer[8] == 0x49 ){
+																if( magicNumberBuffer[9] == 0x46 ){
+																	if( magicNumberBuffer[10] == 0x00 ){
+																		if( magicNumberBuffer[11] == 0x01 ){
+																			//ÿØÿà ..JFIF..
+																			newMessage.attachment.thumbnail = vita2d_load_JPEG_file( imageThumbFileName.c_str() );
+																			if( newMessage.attachment.thumbnail != NULL){
+																				debugNetPrintf( DEBUG , "Could load jpg [ JFIF ] !");
+																				newMessage.attachment.loadedThumbImage = true;
+																			}
+																		}
+																	}
+																}
+															}
+														}
+													}														
+																	
+																	
+												}else if( magicNumberBuffer[3] == (char)0xE1 ){
+													if( magicNumberBuffer[6] == 0x45 ){
+														if( magicNumberBuffer[7] == 0x78 ){
+															if( magicNumberBuffer[8] == 0x69 ){
+																if( magicNumberBuffer[9] == 0x66 ){
+																	if( magicNumberBuffer[10] == 0x00 ){
+																		if( magicNumberBuffer[11] == 0x00 ){
+																			//ÿØÿá ..Exif..
+																			newMessage.attachment.thumbnail = vita2d_load_JPEG_file( imageThumbFileName.c_str() );
+																			if( newMessage.attachment.thumbnail != NULL){
+																				debugNetPrintf( DEBUG , "Could load jpg [ Exif ] !");
+																				newMessage.attachment.loadedThumbImage = true;
+																			}
+																		}
+																	}
+																}
+															}
+														}
+													}														
+																	
+																	
+												}
+												
+											}
+											
+										}
+										
+										
+									}else{
+										newMessage.attachment.loadedThumbImage = false;
+										debugNetPrintf(DEBUG , "Loading thumbnail error : No matching magic numbers ! Tested :[bmp | png | jpg] !");
+									}
+									// END OF MAGIC NUMBER CHECKER ! 
+									
+									
+									debugNetPrintf(DEBUG , "LOADED THUMBNAIL!");
+									
+									
+									
+									
+									
+								}else{
+									newMessage.attachment.isEmpty = true ;
+									newMessage.attachment.isImage = false ;
+									newMessage.attachment.isData = false ;
+									debugNetPrintf(DEBUG , "FAiled loading THUMBNAIL!");
+								}
+							}else if ( urlAvailable && filenameAvailable && sizeAvailable ){
+								
+								if ( newMessage.attachment.size < 1024*1024 ){
+									newMessage.attachment.isImage = false ;
+									newMessage.attachment.isData = true ;
+									// if less than 1 mb download :
+									std::string fileUrl = newMessage.attachment.url;
+									debugNetPrintf( DEBUG , "Loading attachment : " );
+									debugNetPrintf( DEBUG , fileUrl.c_str() );
+									std::string fileName = "ux0:data/vitacord/attachments/other/" + newMessage.attachment.filename;
+									VitaNet::http_response fileGetResponse = vitaNet.curlDiscordDownloadImage( fileUrl , token , fileName);
+									if( fileGetResponse.httpcode == 200){
+										
+										
+										debugNetPrintf(DEBUG , "LOADED ATTACHED FILE!");
+										
+										
+										
+									}else{
+										newMessage.attachment.isEmpty = true ;
+										newMessage.attachment.isImage = false ;
+										newMessage.attachment.isData = false ;
+										debugNetPrintf(DEBUG , "FAiled loading ATTACHED FILE!");
+									}
+									
+									
+									
+								}
+							}
+							
+							
+						}
+					}
+					
+					
 
 				}
+				
+				
+				guilds[currentGuild].channels[currentChannel].messages.push_back(newMessage);
+				
+				
+				
 			}
 			
 			
-			std::reverse(guilds[currentGuild].channels[currentChannel].messages.begin() , guilds[currentGuild].channels[currentChannel].messages.end());
+			//std::reverse(guilds[currentGuild].channels[currentChannel].messages.begin() , guilds[currentGuild].channels[currentChannel].messages.end());
+			
+			guilds[currentGuild].channels[currentChannel].gotMessagesOnce = true;
 			
 		}
-	
+		debugNetPrintf(DEBUG , "End of getchannelmessages!!");
 		lastFetchTimeMS = osGetTimeMS();
 		
 	}

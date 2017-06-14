@@ -128,5 +128,6 @@ vita_create_vpk(${SHORT_NAME}.vpk ${VITA_TITLEID} ${SHORT_NAME}.self
   FILE assets/images/loading/thumb034.png assets/images/loading/thumb034.png
   FILE assets/images/Vitacord-statbar-battery.png assets/images/Vitacord-statbar-battery.png
   FILE assets/images/Vitacord-statbar-battery-charge.png assets/images/Vitacord-statbar-battery-charge.png
+  FILE assets/images/BinaryFile.png assets/images/BinaryFile.png
 )
 

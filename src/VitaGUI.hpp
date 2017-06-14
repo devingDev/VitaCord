@@ -21,6 +21,7 @@
 
 #define MESSAGE_INPUT_HEIGHT 72
 
+#define ATTACHMENT_HEIGHT 64
 #define GUILD_HEIGHT 64
 #define CHANNEL_HEIGHT 64
 #define DMICONX 146
@@ -121,6 +122,7 @@ class VitaGUI{
 		vita2d_texture *statbarBatteryChargeImage;
 		vita2d_texture *sidepanelStateIconImage;
 		vita2d_texture *messageInputImage;
+		vita2d_texture *defaultBinaryThumbnail;
 		std::vector<rectangle> rectangles;
 		std::string loadingScreenString;
 		//std::vector<std::string> guildNames;

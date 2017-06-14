@@ -3,9 +3,11 @@
 
 #include <string>
 #include <vector>
+#include <deque>
 #include <atomic>
 #include <sstream>
 #include <pthread.h>
+#include <vita2d.h>
 
 #include "VitaNet.hpp"
 
@@ -27,11 +29,32 @@ class Discord{
 			int x;
 		} message_emoji;
 		typedef struct {
+			
+			bool isEmpty ;
+			bool isImage ;
+			bool loadedThumbImage ;
+			bool isData ;
+			
+			
+			std::string url;
+			std::string proxy_url;
+			std::string filename;
+			int width;
+			int height;
+			std::string id;
+			int size;
+			int readableSize;
+			std::string readableSizeUnit;
+			
+			vita2d_texture * thumbnail;
+			 
+		}message_attachment;
+		typedef struct {
 			user author;
 			std::string content;
 			//std::u32string contentUTF32;
 			std::string embed;
-			std::string attachment;
+			message_attachment attachment;
 			std::string mentions;
 			std::string timestamp;
 			std::string id;
@@ -53,9 +76,11 @@ class Discord{
 			bool is_private;
 			bool readallowed = true;
 			
+			bool gotMessagesOnce = false;
+			
 			std::vector<permission_overwrite> permission_overwrites;
 			
-			std::vector<message> messages;
+			std::deque<message> messages;
 		}channel;
 		typedef struct {
 			bool owner;
@@ -89,6 +114,7 @@ class Discord{
 		std::string getPassword();
 		void loadData();
 		bool loadingData;
+		bool currentlyRefreshingMessages;
 		std::vector<guild> guilds;
 		std::vector<directMessage> directMessages;
 		int guildsAmount = 0;

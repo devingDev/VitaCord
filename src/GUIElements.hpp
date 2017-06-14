@@ -43,6 +43,13 @@ typedef struct{
 	std::string content;
 	std::string channelID;
 	std::string messageID;
+	bool showAttachmentAsImage;
+	bool showAttachmentAsBinary;
+	std::string attachmentFilename;
+	vita2d_texture * attachmentThumbnail;
+	int attachmentReadableSize;
+	std::string attachmentReadableSizeUnit;
+	std::string attachmentFullText;
 }messagebox;
 
 typedef struct{
