@@ -70,6 +70,7 @@ VitaGUI::VitaGUI(){
 	loadingImage = vita2d_load_PNG_file("app0:assets/images/Vitacord-Loading-8BIT.png");
 	guildsBGImage = vita2d_load_PNG_file("app0:assets/images/Vitacord-GuildsBG-8BIT.png");
 	dmIconImage = vita2d_load_PNG_file("app0:assets/images/Vitacord-DMIcon-8BIT.png");
+	userIconDefaultImage = vita2d_load_PNG_file("app0:assets/images/Vitacord-USERIcondefault-8BIT.png");
 	statbarIconImage = vita2d_load_PNG_file("app0:assets/images/Vitacord-statbar-icon.png");
 	statbarBatteryImage = vita2d_load_PNG_file("app0:assets/images/Vitacord-statbar-battery.png");
 	statbarBatteryChargeImage = vita2d_load_PNG_file("app0:assets/images/Vitacord-statbar-battery-charge.png");
@@ -1229,7 +1230,12 @@ void VitaGUI::DrawMessages(){
 			//vita2d_font_draw_text(vita2dFont , messageScrollX + 160, messageScrollY + i * 128 + 96, RGBA8(255,255,255,255), MESSAGE_CONTENT_TEXT_SIZE_PIXEL, discordPtr->guilds[discordPtr->currentGuild].channels[discordPtr->currentChannel].messages[i].content.c_str());
 			//vita2d_font_draw_text(vita2dFont[15] , messageScrollX + 150, messageScrollY + i * 128 + 32, RGBA8(255,255,255,255), MESSAGE_AUTHOR_TEXT_SIZE_PIXEL, messageBoxes[i].username.c_str());
 			//vita2d_font_draw_text(vita2dFont[30] , messageScrollX + 160, messageScrollY + i * 128 + 96, RGBA8(255,255,255,255), MESSAGE_CONTENT_TEXT_SIZE_PIXEL, messageBoxes[i].content.c_str());
-		}
+			// draw default icon.
+			// When user icons is implemented, add vita2d_texture pointer to user data.
+			// Then apply either the default icon pointer or loaded user icon pionter to this vita2d_texture pointer.
+			// For now we'll just draw the default icon for all users.
+			vita2d_draw_texture(userIconDefaultImage, 243, yPos + 16);
+			}
 		
 		//for(int emo = 0; emo < discordPtr->guilds[discordPtr->currentGuild].channels[discordPtr->currentChannel].messages[i].emojis.size() ; emo++){
 		//	int in = discordPtr->guilds[discordPtr->currentGuild].channels[discordPtr->currentChannel].messages[i].emojis[emo].index ;
@@ -1308,7 +1314,13 @@ void VitaGUI::DrawDirectMessageMessages(){
 			//COMMENT debugNetPrintf(DEBUG, "MESSAGE STEP 5\n");
 				vita2d_font_draw_text(vita2dFont[15], 293, yPos + 50, RGBA8(255, 255, 255, 255), 15, directMessageMessagesBoxes[i].content.c_str());
 			//COMMENT debugNetPrintf(DEBUG, "MESSAGE STEP 6\n");
-		}
+			
+			// draw default icon.
+			// When user icons is implemented, add vita2d_texture pointer to user data.
+			// Then apply either the default icon pointer or loaded user icon pionter to this vita2d_texture pointer.
+			// For now we'll just draw the default icon for all users.
+			vita2d_draw_texture(userIconDefaultImage, 243, yPos + 16);
+			}
 
 		
 		yPos += height; // add message height to yPos

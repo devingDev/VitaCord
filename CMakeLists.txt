@@ -85,6 +85,7 @@ vita_create_vpk(${SHORT_NAME}.vpk ${VITA_TITLEID} ${SHORT_NAME}.self
   FILE assets/font/droidsans.ttf assets/font/droidsans.ttf
   FILE assets/images/Vitacord-Background-8BIT.png assets/images/Vitacord-Background-8BIT.png
   FILE assets/images/Vitacord-DMIcon-8BIT.png assets/images/Vitacord-DMIcon-8BIT.png
+  FILE assets/images/Vitacord-USERIcondefault-8BIT.png assets/images/Vitacord-USERIcondefault-8BIT.png
   FILE assets/images/Vitacord-GuildsBG-8BIT.png assets/images/Vitacord-GuildsBG-8BIT.png
   FILE assets/images/Vitacord-Loading-8BIT.png assets/images/Vitacord-Loading-8BIT.png
   FILE assets/images/Vitacord-LoginForm-8BIT.png assets/images/Vitacord-LoginForm-8BIT.png
