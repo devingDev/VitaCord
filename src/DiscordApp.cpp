@@ -78,7 +78,10 @@ void DiscordApp::loadUserDataFromFile(){
 	discord.setToken(token);
 	
 	vitaGUI.loginTexts[0] = discord.getEmail();
-	vitaGUI.loginTexts[1] = "********";
+	vitaGUI.loginTexts[1] = "";
+	for( i = 0 ; i < password.length() ; i++){
+		vitaGUI.loginTexts[1] += "*";
+	}
 }
 
 void DiscordApp::saveUserDataToFile(std::string mail , std::string pass , std::string _tok){
@@ -97,7 +100,7 @@ void DiscordApp::saveUserDataToFile(std::string mail , std::string pass , std::s
 
 void DiscordApp::Start(){
 	
-	criticalLogSD("____App started!_____");
+	
 	
 	logSD("load userdata file");
 	loadUserDataFromFile();
@@ -286,7 +289,8 @@ void DiscordApp::doLogin(){
 		logSD("Loaded data");
 		vitaGUI.SetState(1);
 	}else if(loginR == 200000){
-		if( discord.submit2facode(vitaIME.getUserText(get2facodeTitle)) == 200){
+		int login2faResponse = discord.submit2facode(vitaIME.getUserText(get2facodeTitle));
+		if( login2faResponse == 200){
 			logSD("Login (2FA) Success");
 			vitaGUI.loadingString = "Wait a second " + discord.getUsername();
 			saveUserDataToFile(discord.getEmail() , discord.getPassword() , discord.getToken());
@@ -294,11 +298,36 @@ void DiscordApp::doLogin(){
 			logSD("Loaded data");
 			vitaGUI.SetState(1);
 			logSD("Set state");
+		}else if(login2faResponse == -15){
+			vitaGUI.loginTexts[2] = "2FA code too short! ";
+		}else if(login2faResponse == -120){
+			vitaGUI.loginTexts[2] = "D> JSON parse error! ";
+		}else if(login2faResponse == -125){
+			vitaGUI.loginTexts[2] = "D> JSON response was empty! ";
+		}else if(login2faResponse == -126){
+			vitaGUI.loginTexts[2] = "D> 2FA token was empty! ";
 		}else{
-			vitaGUI.loginTexts[2] = "Wrong 2FA code ?";
+			vitaGUI.loginTexts[2] = "Error Code " + std::to_string(login2faResponse);;
+			std::string errorStr = "Unknown error 2fa = " + std::to_string(login2faResponse);
+			criticalLogSD(errorStr.c_str());
 		}
-	}else{
-		vitaGUI.loginTexts[2] = "Wrong password ?";
+	}else if(loginR == -11){
+		vitaGUI.loginTexts[2] = "Email too short!";
+	}else if(loginR == -12){
+		vitaGUI.loginTexts[2] = "Password too short!";
+	}else if(loginR == -120){
+		vitaGUI.loginTexts[2] = "D> JSON parse error! ";
+	}else if(loginR == -125){
+		vitaGUI.loginTexts[2] = "D> JSON response was empty! ";
+	}else if(loginR == -127){
+		vitaGUI.loginTexts[2] = "D> No token or mfa in JSON.";
+	}else if(loginR == -129){
+		vitaGUI.loginTexts[2] = "D> MFA ticket was empty !";
+	}
+	else{
+		vitaGUI.loginTexts[2] = "Error Code " + std::to_string(loginR);
+		std::string errorStr = "Unknown error = " + std::to_string(loginR);
+		criticalLogSD(errorStr.c_str());
 	}
 	
 	vitaGUI.unshowLoginCue();
@@ -327,7 +356,11 @@ void DiscordApp::getUserPasswordInput(){
 	debugNetPrintf(DEBUG  , "New password is : %s\n" , newpassword.c_str());
 	discord.setPassword(newpassword);
 	debugNetPrintf(DEBUG  , "(Check)New password is : %s\n" , discord.getPassword().c_str());
-	vitaGUI.loginTexts[1] = "********";
+	vitaGUI.loginTexts[1] = "";
+	for(unsigned int i = 0 ; i < newpassword.length() ; i++){
+		vitaGUI.loginTexts[1] += "*";
+	}
+	
 	sceKernelDelayThread(SLEEP_CLICK_NORMAL);
 }
 
