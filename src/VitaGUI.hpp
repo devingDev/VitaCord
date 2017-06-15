@@ -64,7 +64,6 @@ class VitaGUI{
 		void setDirectMessageBoxes();
 		void setDirectMessageMessagesBoxes();
 		void updateBoxes();
-		void NextFont();
 		
 		void SetStateToLastState();
 		
