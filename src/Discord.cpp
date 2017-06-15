@@ -57,11 +57,61 @@ bool Discord::sendMessage(std::string msg){
 	return false;
 }
 
+
+bool Discord::editMessage(std::string channelID , std::string messageID , std::string newContent){
+	std::string editMessageUrl = "https://discordapp.com/api/channels/" + channelID + "/messages/" + messageID;
+	std::string patchData = "{ \"content\":\"" + newContent + "\" }";
+	VitaNet::http_response editmessageresponse = vitaNet.curlDiscordPatch(editMessageUrl , patchData , token);
+	if(editmessageresponse.httpcode == 200){
+		
+		
+		for(unsigned int i = 0 ; i < guilds[currentGuild].channels[currentChannel].messages.size();i++){
+			if(guilds[currentGuild].channels[currentChannel].messages[i].id == messageID){
+				
+				guilds[currentGuild].channels[currentChannel].messages[i].content = newContent;
+				refreshedMessages = true;// MAYBE MAKE ANOTHER VARIABLE
+				i= 99999;
+				break;
+			}
+			
+		}
+		
+		
+		
+		
+		return true;
+	}
+	return false;
+}
+
 bool Discord::deleteMessage(std::string channelID , std::string messageID){
 	std::string deleteMessageUrl = "https://discordapp.com/api/channels/" + channelID + "/messages/" + messageID;
 	VitaNet::http_response deletemessageresponse = vitaNet.curlDiscordDelete(deleteMessageUrl , token);
 	if(deletemessageresponse.httpcode == 204){
+		
+		/* this code probably is cause of gpu crash , because vitagui tries to read the last message somewhere or so which does not exist .. maybe.
+		// delete from deque
+		*/
+		for(unsigned int i = 0 ; i < guilds[currentGuild].channels[currentChannel].messages.size();i++){
+			if(guilds[currentGuild].channels[currentChannel].messages[i].id == messageID){
+				
+				if(guilds[currentGuild].channels[currentChannel].messages[i].attachment.loadedThumbImage && guilds[currentGuild].channels[currentChannel].messages[i].attachment.thumbnail != NULL){
+					vita2d_free_texture(guilds[currentGuild].channels[currentChannel].messages[i].attachment.thumbnail);
+				}
+				guilds[currentGuild].channels[currentChannel].messages.erase(guilds[currentGuild].channels[currentChannel].messages.begin() + i);
+				refreshedMessages = true;// MAYBE MAKE ANOTHER VARIABLE
+				i = 99999;
+				break;
+			}
+			
+		}
+		refreshedMessages = true;
+		
+		//guilds[currentGuild].channels[currentChannel].messages.clear();
+		
 		return true;
+		
+		
 	}
 	return false;
 }
@@ -352,7 +402,7 @@ void Discord::getChannelMessages(int channelIndex){
 	currentChannel = channelIndex;
 	std::string channelMessagesUrl = "https://discordapp.com/api/channels/" + guilds[currentGuild].channels[currentChannel].id + "/messages?limit=100";
 	
-	if(guilds[currentGuild].channels[currentChannel].gotMessagesOnce){
+	if(guilds[currentGuild].channels[currentChannel].gotMessagesOnce ){
 		channelMessagesUrl += "&after=" + guilds[currentGuild].channels[currentChannel].last_message_id;
 	}
 	
@@ -431,6 +481,10 @@ void Discord::getChannelMessages(int channelIndex){
 						if(!j_complete[iR]["attachments"][0].is_null()){
 							
 							newMessage.attachment.isEmpty = false;
+							newMessage.attachment.isImage = false ;
+							newMessage.attachment.isData = false ;
+							newMessage.attachment.loadedThumbImage = false;
+							
 							bool proxyAvailable = false;
 							bool filenameAvailable = false;
 							bool imageDimensionAvailable = false;
@@ -659,6 +713,11 @@ void Discord::getChannelMessages(int channelIndex){
 									
 									
 								}
+							}else{
+								newMessage.attachment.isEmpty = true ;
+								newMessage.attachment.isImage = false ;
+								newMessage.attachment.isData = false ;
+								
 							}
 							
 							

@@ -106,6 +106,7 @@ void DiscordApp::Start(){
 	loadUserDataFromFile();
 	logSD("pass discord pointer to vitaGUI");
 	vitaGUI.passDiscordPointer( &discord );
+	vitaGUI.passVITAIMEPointer( &vitaIME );
 	logSD("start program loop");
 	for(;;){
 		

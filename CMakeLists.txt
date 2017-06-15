@@ -14,7 +14,7 @@ include("${VITASDK}/share/vita.cmake" REQUIRED)
 
 set(VITA_APP_NAME "VitaCord")
 set(VITA_TITLEID  "VTCD00001")
-set(VITA_VERSION  "01.05")
+set(VITA_VERSION  "01.50")
 
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g -fpermissive -std=gnu11 -Wall ")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -fpermissive -std=c++11 -Wall ")
@@ -83,6 +83,7 @@ vita_create_vpk(${SHORT_NAME}.vpk ${VITA_TITLEID} ${SHORT_NAME}.self
   FILE sce_sys/livearea/contents/startup.png sce_sys/livearea/contents/startup.png
   FILE sce_sys/livearea/contents/template.xml sce_sys/livearea/contents/template.xml
   FILE assets/font/droidsans.ttf assets/font/droidsans.ttf
+  FILE assets/font/whitney-book.ttf assets/font/whitney-book.ttf
   FILE assets/images/Vitacord-Background-8BIT.png assets/images/Vitacord-Background-8BIT.png
   FILE assets/images/Vitacord-DMIcon-8BIT.png assets/images/Vitacord-DMIcon-8BIT.png
   FILE assets/images/Vitacord-USERIcondefault-8BIT.png assets/images/Vitacord-USERIcondefault-8BIT.png

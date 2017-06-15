@@ -140,6 +140,7 @@ class Discord{
 		bool sendMessage(std::string msg);
 		bool sendDirectMessage(std::string msg);
 		
+		bool editMessage(std::string channelID , std::string messageID , std::string newContent);
 		bool deleteMessage(std::string channelID , std::string messageID);
 		
 		bool refreshMessages();

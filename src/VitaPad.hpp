@@ -20,10 +20,10 @@ class VitaPad{
 		unsigned char lx , ly , rx , ry;
 		
 	private:
-		unsigned char left_analog_calibration_x = 127;
-		unsigned char left_analog_calibration_y = 127;
-		unsigned char right_analog_calibration_x = 127;
-		unsigned char right_analog_calibration_y = 127;
+		unsigned char left_analog_calibration_x = 128;
+		unsigned char left_analog_calibration_y = 128;
+		unsigned char right_analog_calibration_x = 128;
+		unsigned char right_analog_calibration_y = 128;
 		SceCtrlData vitapad;
 	
 };

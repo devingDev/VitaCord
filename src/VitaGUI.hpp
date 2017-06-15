@@ -3,6 +3,7 @@
 
 #include <vita2d.h>
 #include "GUIElements.hpp"
+#include "VitaIME.hpp"
 #include "Discord.hpp"
 #include <vector>
 #include <string>
@@ -55,6 +56,7 @@ class VitaGUI{
 		void SetState(int s);
 		int GetState();
 		
+		void passVITAIMEPointer( VitaIME * vmeptr );
 		void passDiscordPointer(Discord *ptr);
 		void setGuildBoxes();
 		void setChannelBoxes();
@@ -92,8 +94,11 @@ class VitaGUI{
 		
 		bool clickedMessage = false;
 		messagebox deleteMessageBox;
+		messagebox editMessageBox;
 	
 	private:
+		
+		VitaIME * vitaIMEPtr;
 		
 		void DrawStatusBar();
 		
