@@ -114,7 +114,11 @@ void DiscordApp::Start(){
 		
 		
 		logSD("vitagui draw");
+		// DRAW 
+		sceKernelDelayThread(10000);
 		vitaGUI.Draw();
+		sceKernelDelayThread(10000);
+		
 		
 		logSD("vitapad read");
 		vitaPad.Read();
@@ -272,6 +276,7 @@ void DiscordApp::Start(){
 			discord.refreshCurrentDirectMessages();
 			
 		}
+		
 		
 	}
 	
