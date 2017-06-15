@@ -83,6 +83,7 @@ vita_create_vpk(${SHORT_NAME}.vpk ${VITA_TITLEID} ${SHORT_NAME}.self
   FILE sce_sys/livearea/contents/startup.png sce_sys/livearea/contents/startup.png
   FILE sce_sys/livearea/contents/template.xml sce_sys/livearea/contents/template.xml
   FILE assets/font/droidsans.ttf assets/font/droidsans.ttf
+  FILE assets/font/whitney-book.ttf assets/font/whitney-book.ttf
   FILE assets/images/Vitacord-Background-8BIT.png assets/images/Vitacord-Background-8BIT.png
   FILE assets/images/Vitacord-DMIcon-8BIT.png assets/images/Vitacord-DMIcon-8BIT.png
   FILE assets/images/Vitacord-USERIcondefault-8BIT.png assets/images/Vitacord-USERIcondefault-8BIT.png

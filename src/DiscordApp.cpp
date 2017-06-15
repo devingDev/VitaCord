@@ -115,9 +115,9 @@ void DiscordApp::Start(){
 		
 		logSD("vitagui draw");
 		// DRAW 
-		sceKernelDelayThread(10000);
+		sceKernelDelayThread(5000);
 		vitaGUI.Draw();
-		sceKernelDelayThread(10000);
+		sceKernelDelayThread(5000);
 		
 		
 		logSD("vitapad read");

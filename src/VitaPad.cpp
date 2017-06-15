@@ -72,22 +72,22 @@ void VitaPad::Read(){
 	 
 	
 	if(abs(vitapad.lx - left_analog_calibration_x) > DEADZONE){
-		left_analog_calibrated_x =  static_cast<int>((vitapad.lx - left_analog_calibration_x)/24);  // dont change these ... -> crashing when scrolling. no idea why! >_>
+		left_analog_calibrated_x =  static_cast<int>((vitapad.lx - left_analog_calibration_x)/8);  // dont change these ... -> crashing when scrolling. no idea why! >_>
 	}else{
 		left_analog_calibrated_x = 0;
 	}
 	if(abs(vitapad.ly - left_analog_calibration_y) > DEADZONE){
-		left_analog_calibrated_y =  static_cast<int>((vitapad.ly - left_analog_calibration_y)/24);
+		left_analog_calibrated_y =  static_cast<int>((vitapad.ly - left_analog_calibration_y)/8);
 	}else{
 		left_analog_calibrated_y = 0;
 	}
 	if(abs(vitapad.rx - right_analog_calibration_x) > DEADZONE){
-		right_analog_calibrated_x =  static_cast<int>((vitapad.rx - right_analog_calibration_x)/24);
+		right_analog_calibrated_x =  static_cast<int>((vitapad.rx - right_analog_calibration_x)/8);
 	}else{
 		right_analog_calibrated_x = 0;
 	}
 	if(abs(vitapad.ry - right_analog_calibration_y) > DEADZONE){
-		right_analog_calibrated_y =  static_cast<int>((vitapad.ry - right_analog_calibration_y) /24);
+		right_analog_calibrated_y =  static_cast<int>((vitapad.ry - right_analog_calibration_y) /8);
 	}else{
 		right_analog_calibrated_y = 0;
 	}
