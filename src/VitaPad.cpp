@@ -72,7 +72,7 @@ void VitaPad::Read(){
 	 
 	
 	if(abs(vitapad.lx - left_analog_calibration_x) > DEADZONE){
-		left_analog_calibrated_x =  static_cast<int>((vitapad.lx - left_analog_calibration_x)/24);
+		left_analog_calibrated_x =  static_cast<int>((vitapad.lx - left_analog_calibration_x)/24);  // dont change these ... -> crashing when scrolling. no idea why! >_>
 	}else{
 		left_analog_calibrated_x = 0;
 	}

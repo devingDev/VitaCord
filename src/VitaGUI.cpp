@@ -25,12 +25,12 @@ VitaGUI::VitaGUI(){
 	//vita2dFontOpenSansEmoji = vita2d_load_font_file("app0:assets/font/opensansemoji.ttf");
 	
 	for(int f = 0; f < MAX_FONT_SIZE ; f++){
-		vita2dFont[f] = vita2d_load_font_file("app0:assets/font/droidsans.ttf");
+		vita2dFont[f] = vita2d_load_font_file("app0:assets/font/whitney-book.ttf");
 	}
 	
-	vita2dFontSmall = vita2d_load_font_file("app0:assets/font/droidsans.ttf");
-	vita2dFontNormal = vita2d_load_font_file("app0:assets/font/droidsans.ttf");
-	vita2dFontBig = vita2d_load_font_file("app0:assets/font/droidsans.ttf");
+	vita2dFontSmall = vita2d_load_font_file("app0:assets/font/whitney-book.ttf");
+	vita2dFontNormal = vita2d_load_font_file("app0:assets/font/whitney-book.ttf");
+	vita2dFontBig = vita2d_load_font_file("app0:assets/font/whitney-book.ttf");
 	
 	std::string bgPath = "app0:assets/images/Vitacord-Background-8BIT.png";
 	backgroundImage = vita2d_load_PNG_file(bgPath.c_str());
