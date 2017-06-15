@@ -1,6 +1,6 @@
 # VitaCord, a Discord Client for PS Vita / PS TV.
 
-* If something is wrong ask in [Vita Hacking Discord](https://discord.gg/JXEKeg6), at #henkaku on [FreeNode IRC](https://webchat.freenode.net) or open a GitHub  Issue. ( <-- Easiest )
+* If something is wrong ask in [Vita Hacking Discord](https://discord.gg/JXEKeg6), [VitaCord Discord](https://discord.gg/j5RMPWV), at #henkaku on [FreeNode IRC](https://webchat.freenode.net) or open a GitHub  Issue. ( <-- Easiest )
 
 #### Features:
 
