@@ -12,6 +12,11 @@
 ![Sending and Recieving Messages in Servers](http://jaynapps.com/imgupload/uploads/28cfb141750d5c2102b67d292989e01c.jpg)
 ![Sending and Recieving Messages in DM's](http://jaynapps.com/imgupload/uploads/f8d5168058e915aa66e49d04e05d98c7.jpg)
 
+#### Downloads:
+
+* Last releases : (https://github.com/devingDev/VitaCord/releases)
+* Latest dev version : (https://github.com/devingDev/VitaCord/raw/master/vita_cord.vpk)
+
 #### Credits
 
 * coderx3 (devingDev)

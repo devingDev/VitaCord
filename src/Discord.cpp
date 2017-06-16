@@ -92,7 +92,7 @@ bool Discord::deleteMessage(std::string channelID , std::string messageID){
 		
 		/* this code probably is cause of gpu crash , because vitagui tries to read the last message somewhere or so which does not exist .. maybe.
 		// delete from deque
-		*/
+		
 		for(unsigned int i = 0 ; i < guilds[currentGuild].channels[currentChannel].messages.size();i++){
 			if(guilds[currentGuild].channels[currentChannel].messages[i].id == messageID){
 				
@@ -107,7 +107,7 @@ bool Discord::deleteMessage(std::string channelID , std::string messageID){
 			
 		}
 		refreshedMessages = true;
-		
+		*/
 		//guilds[currentGuild].channels[currentChannel].messages.clear();
 		
 		return true;
