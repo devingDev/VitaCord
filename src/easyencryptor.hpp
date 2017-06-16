@@ -3,9 +3,11 @@
 
 #include <string>
 
-std::string encrypt(std::string msg);
-std::string decrypt(std::string msg);
+std::string simpleEncrypt(std::string msg);
+std::string simpleDecrypt(std::string msg);
 
+std::string xorEncrypt(std::string msg);
+std::string xorDecrypt(std::string msg);
 
 
 #endif

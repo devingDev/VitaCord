@@ -1,18 +1,19 @@
 #include "DiscordApp.hpp"
 #include "log.hpp"
 #include "easyencryptor.hpp"
+#include <psp2/io/stat.h> 
 
 #include <debugnet.h>
 #include <psp2/io/fcntl.h>
 
 
-void DiscordApp::loadUserDataFromFile(){
+void DiscordApp::loadUserDataFromFile ( ) {
 	std::string enckey = "Toastie";
-	logSD("sceioopen");
-	int fh = sceIoOpen("ux0:data/vitacord-userdata.txt", SCE_O_RDONLY , 0777);
-	logSD("getfilesize");
-	int filesize = sceIoLseek(fh, 0, SCE_SEEK_END);
-	logSD("filesize is : " + std::to_string(filesize));
+	logSD ("sceioopen");
+	int fh = sceIoOpen ( "ux0:data/vitacord-userdata.txt", SCE_O_RDONLY , 0777 );
+	logSD ( "getfilesize" );
+	int filesize = sceIoLseek ( fh, 0, SCE_SEEK_END );
+	logSD( "filesize is : " + std::to_string ( filesize ) );
 	logSD("sceioseekfront");
 	sceIoLseek(fh, 0, SCE_SEEK_SET);
 	logSD("char* buffer = malloc(filesize)");
@@ -21,54 +22,107 @@ void DiscordApp::loadUserDataFromFile(){
 	int readbytes = sceIoRead(fh, buffer, filesize); 
 	logSD("readbytes is : " + std::to_string(readbytes));
 	logSD("sceioclose");
-	sceIoClose(fh);
+	sceIoClose( fh );
+	sceIoRemove( "ux0:data/vitacord-userdata.txt" );
 	
-	if(filesize < 4 || readbytes < 4){
-		logSD("file too small no settings loaded");
+	
+	bool oldEnc = false;
+	
+	if ( filesize < 4 || readbytes < 4 ) {
+		logSD( "file too small no settings loaded" );
+		
 		return;
+	}else{
+		oldEnc = true;
 	}
-	logSD("declare strings");
+	logSD( "declare strings" );
 	
 	std::string parserString = std::string( buffer , readbytes);
 	std::string email = ""  , password = "" , token = "";
 	bool getmail= true , getpass = false, gettoken = false;
 	unsigned int i = 0;
-	logSD("declare strings");
-	for(i = 0 ; i < parserString.length() ; i++){
-		
-		if(parserString[i] == '\n'){
-			if(getmail){
-				logSD("newline . switching to getpass");
-				getmail = false;
-				getpass = true;
-			}else if(getpass){
-				logSD("newline . switching to token");
-				getpass = false;
-				gettoken = true;
-			}else if(gettoken){
-				gettoken = false;
-				i = 9999;
-				break;
-			}
-		}else if(parserString[i] == '\r'){
-			
-		}else if(parserString[i] == '\0'){
-			logSD("NIL character");
-		}else{
-			if(getmail){
-				email += parserString[i];
-			}else if(getpass){
-				password += parserString[i];
-			}else if(gettoken){
-				token += parserString[i];
-			}
+	logSD( "declare strings" );
+	
+	
+	// new enc
+	if ( !oldEnc ) {
+		int fhMail = sceIoOpen ( "ux0:/data/vitacord/settings/mail.enc" , SCE_O_RDONLY , 0777 );
+		//if(
+		int fileSize = sceIoLseek ( fhMail, 0, SCE_SEEK_END );
+		sceIoLseek ( fhMail, 0, SCE_SEEK_SET );
+		if ( fileSize >= 5 ) {
+			char * bufferMail = ( char * ) malloc (fileSize);
+			int readBytes = sceIoRead ( fhMail , bufferMail , fileSize );
+			std::string encMailStr = std::string ( bufferMail , readBytes );
+			email = xorDecrypt ( encMailStr );
 		}
+		sceIoClose ( fhMail );
+		
+		int fhPass = sceIoOpen ( "ux0:/data/vitacord/settings/pass.enc" , SCE_O_RDONLY , 0777 );
+		fileSize = sceIoLseek ( fhPass, 0, SCE_SEEK_END );
+		sceIoLseek ( fhPass, 0, SCE_SEEK_SET );
+		if ( fileSize >= 1 ) {
+			char * bufferPass = ( char * ) malloc ( fileSize );
+			int readBytes = sceIoRead ( fhPass , bufferPass , fileSize );
+			std::string encPassStr = std::string ( bufferPass , readBytes );
+			password = xorDecrypt ( encPassStr );
+		}
+		sceIoClose ( fhPass );
+		
+		int fhTok = sceIoOpen ( "ux0:/data/vitacord/settings/to.enc" , SCE_O_RDONLY , 0777 );
+		fileSize = sceIoLseek ( fhTok, 0, SCE_SEEK_END );
+		sceIoLseek ( fhTok, 0, SCE_SEEK_SET );
+		if ( fileSize >= 5 ) {
+			char * bufferToken = ( char * ) malloc ( fileSize );
+			int readBytes = sceIoRead ( fhTok , bufferToken , fileSize );
+			std::string encTokenStr = std::string ( bufferToken , readBytes );
+			token = xorDecrypt ( encTokenStr );
+		}
+		sceIoClose ( fhTok );
+		
+	} else if ( oldEnc ) {
+		// old enc
+		for(i = 4 ; i < parserString.length() ; i++){
+			
+			
+			if(parserString[i] == '\n'){
+				if(getmail){
+					logSD("newline . switching to getpass");
+					getmail = false;
+					getpass = true;
+				}else if(getpass){
+					logSD("newline . switching to token");
+					getpass = false;
+					gettoken = true;
+				}else if(gettoken){
+					gettoken = false;
+					i = 9999;
+					break;
+				}
+			}else if(parserString[i] == '\r'){
+				
+			}else if(parserString[i] == '\0'){
+				logSD("NIL character");
+			}else{
+				if(getmail){
+					email += parserString[i];
+				}else if(getpass){
+					password += parserString[i];
+				}else if(gettoken){
+					token += parserString[i];
+				}
+			}
+			
+		}
+		
+		email = simpleDecrypt(email);
+		password = simpleDecrypt(password);
+		token = simpleDecrypt(token);
+		
+		saveUserDataToFile(email , password , token);
 		
 	}
 	
-	email = decrypt(email);
-	password = decrypt(password);
-	token = decrypt(token);
 	
 	logSD("set mail");
 	discord.setEmail(email);
@@ -87,13 +141,22 @@ void DiscordApp::loadUserDataFromFile(){
 void DiscordApp::saveUserDataToFile(std::string mail , std::string pass , std::string _tok){
 	
 	
-	mail = encrypt(mail);
-	pass = encrypt(pass);
-	_tok = encrypt(_tok);
+	mail = xorEncrypt(mail);
+	pass = xorEncrypt(pass);
+	_tok = xorEncrypt(_tok);
 	
-	std::string userdata = mail + "\n" + pass + "\n" + _tok + "\n";
-	int fh = sceIoOpen("ux0:data/vitacord-userdata.txt", SCE_O_WRONLY | SCE_O_CREAT, 0777);
-	sceIoWrite(fh, userdata.c_str(), strlen(userdata.c_str()));
+	sceIoMkdir("ux0:data/vitacord", 0777);
+	sceIoMkdir("ux0:data/vitacord/settings", 0777);
+	
+	//std::string userdata = mail + "\n" + pass + "\n" + _tok + "\n";
+	int fh = sceIoOpen("ux0:data/vitacord/settings/mail.enc", SCE_O_WRONLY | SCE_O_CREAT, 0777);
+	sceIoWrite(fh, mail.c_str(), strlen(mail.c_str()));
+	sceIoClose(fh);
+	fh = sceIoOpen("ux0:data/vitacord/settings/pass.enc", SCE_O_WRONLY | SCE_O_CREAT, 0777);
+	sceIoWrite(fh, pass.c_str(), strlen(pass.c_str()));
+	sceIoClose(fh);
+	fh = sceIoOpen("ux0:data/vitacord/settings/to.enc", SCE_O_WRONLY | SCE_O_CREAT, 0777);
+	sceIoWrite(fh, _tok.c_str(), strlen(_tok.c_str()));
 	sceIoClose(fh);
 }
 
@@ -285,7 +348,6 @@ void DiscordApp::Start(){
 void DiscordApp::doLogin(){
 	
 	vitaGUI.showLoginCue();
-	debugNetPrintf(DEBUG  , "(Check)Login with email : %s   and password : %s!\n" , discord.getPassword().c_str() , discord.getEmail().c_str());
 	int loginR = discord.login();
 	if(loginR  == 200){
 		logSD("Login Success");
@@ -359,9 +421,7 @@ void DiscordApp::getUserPasswordInput(){
 	vitaGUI.loginTexts[2] = "";
 	
 	std::string newpassword = vitaIME.getUserText(passwordTitle );
-	debugNetPrintf(DEBUG  , "New password is : %s\n" , newpassword.c_str());
 	discord.setPassword(newpassword);
-	debugNetPrintf(DEBUG  , "(Check)New password is : %s\n" , discord.getPassword().c_str());
 	vitaGUI.loginTexts[1] = "";
 	for(unsigned int i = 0 ; i < newpassword.length() ; i++){
 		vitaGUI.loginTexts[1] += "*";

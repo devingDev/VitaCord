@@ -344,7 +344,7 @@ VitaNet::http_response  VitaNet::curlDiscordDownloadImage(std::string url , std:
 		headerchunk = curl_slist_append(headerchunk, "Content-Type: application/json");
 		headerchunk = curl_slist_append(headerchunk, "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36");
 		headerchunk = curl_slist_append(headerchunk, authorizationHeader.c_str());
-		//headerchunk = curl_slist_append(headerchunk, "Host: discordapp.com");
+		//headerchunk = curl_slist_append(headerchunk, "Host: discordapp.com");  Setting this will lead to errors when trying to download. should be set depending on location : possible : cdn.discordapp.com or images.discordapp.com
 		headerchunk = curl_slist_append(headerchunk, "Content-Length: 0");
 		res = curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headerchunk);
 		
