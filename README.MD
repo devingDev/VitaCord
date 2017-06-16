@@ -14,8 +14,8 @@
 
 #### Downloads:
 
-* Last releases : (https://github.com/devingDev/VitaCord/releases)
-* Latest dev version : (https://github.com/devingDev/VitaCord/raw/master/vita_cord.vpk)
+* [Last Releases](https://github.com/devingDev/VitaCord/releases)
+* [Newest Dev Version](https://github.com/devingDev/VitaCord/raw/master/vita_cord.vpk)
 
 #### Credits
 
