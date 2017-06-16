@@ -8,36 +8,43 @@
 
 
 void DiscordApp::loadUserDataFromFile ( ) {
-	std::string enckey = "Toastie";
-	logSD ("sceioopen");
-	int fh = sceIoOpen ( "ux0:data/vitacord-userdata.txt", SCE_O_RDONLY , 0777 );
-	logSD ( "getfilesize" );
-	int filesize = sceIoLseek ( fh, 0, SCE_SEEK_END );
-	logSD( "filesize is : " + std::to_string ( filesize ) );
-	logSD("sceioseekfront");
-	sceIoLseek(fh, 0, SCE_SEEK_SET);
-	logSD("char* buffer = malloc(filesize)");
-	char* buffer = (char*)malloc(filesize);
-	logSD("sceioread");
-	int readbytes = sceIoRead(fh, buffer, filesize); 
-	logSD("readbytes is : " + std::to_string(readbytes));
-	logSD("sceioclose");
-	sceIoClose( fh );
-	sceIoRemove( "ux0:data/vitacord-userdata.txt" );
-	
-	
+	debugNetPrintf(DEBUG , "loadUserDataFromFile \n");
+	std::string parserString = "";
 	bool oldEnc = false;
-	
-	if ( filesize < 4 || readbytes < 4 ) {
-		logSD( "file too small no settings loaded" );
+	std::string enckey = "Toastie";
+	debugNetPrintf(DEBUG , "sceioopen");
+	int fh = sceIoOpen ( "ux0:data/vitacord-userdata.txt", SCE_O_RDONLY , 0777 );
+
+	if(fh >= 0){
 		
-		return;
-	}else{
-		oldEnc = true;
+		logSD ( "getfilesize" );
+		int filesize = sceIoLseek ( fh, 0, SCE_SEEK_END );
+		logSD( "filesize is : " + std::to_string ( filesize ) );
+		logSD("sceioseekfront");
+		sceIoLseek(fh, 0, SCE_SEEK_SET);
+		logSD("char* buffer = malloc(filesize)");
+		char* buffer = (char*)malloc(filesize);
+		logSD("sceioread");
+		int readbytes = sceIoRead(fh, buffer, filesize); 
+		logSD("readbytes is : " + std::to_string(readbytes));
+		logSD("sceioclose");
+		sceIoClose( fh );
+		sceIoRemove( "ux0:data/vitacord-userdata.txt" );
+		
+		if ( filesize < 4 || readbytes < 4 ) {
+			debugNetPrintf(DEBUG , "oldFile too small or not existant \n");
+			logSD( "file too small no settings loaded" );
+			oldEnc = false;
+		}else{
+			debugNetPrintf(DEBUG , "oldFile existant \n");
+			parserString = std::string( buffer , readbytes);
+			oldEnc = true;
+		}
 	}
+	
 	logSD( "declare strings" );
 	
-	std::string parserString = std::string( buffer , readbytes);
+	
 	std::string email = ""  , password = "" , token = "";
 	bool getmail= true , getpass = false, gettoken = false;
 	unsigned int i = 0;
@@ -46,8 +53,8 @@ void DiscordApp::loadUserDataFromFile ( ) {
 	
 	// new enc
 	if ( !oldEnc ) {
-		int fhMail = sceIoOpen ( "ux0:/data/vitacord/settings/mail.enc" , SCE_O_RDONLY , 0777 );
-		//if(
+		debugNetPrintf(DEBUG , "new loading!\n");
+		int fhMail = sceIoOpen ( "ux0:data/vitacord/user/loc.ecr" , SCE_O_RDONLY , 0777 );
 		int fileSize = sceIoLseek ( fhMail, 0, SCE_SEEK_END );
 		sceIoLseek ( fhMail, 0, SCE_SEEK_SET );
 		if ( fileSize >= 5 ) {
@@ -58,7 +65,8 @@ void DiscordApp::loadUserDataFromFile ( ) {
 		}
 		sceIoClose ( fhMail );
 		
-		int fhPass = sceIoOpen ( "ux0:/data/vitacord/settings/pass.enc" , SCE_O_RDONLY , 0777 );
+		debugNetPrintf(DEBUG , "loading pass!\n");
+		int fhPass = sceIoOpen ( "ux0:data/vitacord/user/set.ecr" , SCE_O_RDONLY , 0777 );
 		fileSize = sceIoLseek ( fhPass, 0, SCE_SEEK_END );
 		sceIoLseek ( fhPass, 0, SCE_SEEK_SET );
 		if ( fileSize >= 1 ) {
@@ -69,7 +77,8 @@ void DiscordApp::loadUserDataFromFile ( ) {
 		}
 		sceIoClose ( fhPass );
 		
-		int fhTok = sceIoOpen ( "ux0:/data/vitacord/settings/to.enc" , SCE_O_RDONLY , 0777 );
+		debugNetPrintf(DEBUG , "loading token!\n");
+		int fhTok = sceIoOpen ( "ux0:data/vitacord/user/cr.ecr" , SCE_O_RDONLY , 0777 );
 		fileSize = sceIoLseek ( fhTok, 0, SCE_SEEK_END );
 		sceIoLseek ( fhTok, 0, SCE_SEEK_SET );
 		if ( fileSize >= 5 ) {
@@ -82,8 +91,10 @@ void DiscordApp::loadUserDataFromFile ( ) {
 		
 	} else if ( oldEnc ) {
 		// old enc
-		for(i = 4 ; i < parserString.length() ; i++){
+		debugNetPrintf(DEBUG , "Old loading!\n");
+		for(i = 0 ; i < parserString.length() ; i++){
 			
+		
 			
 			if(parserString[i] == '\n'){
 				if(getmail){
@@ -124,11 +135,8 @@ void DiscordApp::loadUserDataFromFile ( ) {
 	}
 	
 	
-	logSD("set mail");
 	discord.setEmail(email);
-	logSD("set pass");
 	discord.setPassword(password);
-	logSD("set token");
 	discord.setToken(token);
 	
 	vitaGUI.loginTexts[0] = discord.getEmail();
@@ -145,24 +153,33 @@ void DiscordApp::saveUserDataToFile(std::string mail , std::string pass , std::s
 	pass = xorEncrypt(pass);
 	_tok = xorEncrypt(_tok);
 	
-	sceIoMkdir("ux0:data/vitacord", 0777);
-	sceIoMkdir("ux0:data/vitacord/settings", 0777);
-	
 	//std::string userdata = mail + "\n" + pass + "\n" + _tok + "\n";
-	int fh = sceIoOpen("ux0:data/vitacord/settings/mail.enc", SCE_O_WRONLY | SCE_O_CREAT, 0777);
+	int fh = sceIoOpen("ux0:data/vitacord/user/loc.ecr", SCE_O_WRONLY | SCE_O_CREAT, 0777);
 	sceIoWrite(fh, mail.c_str(), strlen(mail.c_str()));
 	sceIoClose(fh);
-	fh = sceIoOpen("ux0:data/vitacord/settings/pass.enc", SCE_O_WRONLY | SCE_O_CREAT, 0777);
+	fh = sceIoOpen("ux0:data/vitacord/user/set.ecr", SCE_O_WRONLY | SCE_O_CREAT, 0777);
 	sceIoWrite(fh, pass.c_str(), strlen(pass.c_str()));
 	sceIoClose(fh);
-	fh = sceIoOpen("ux0:data/vitacord/settings/to.enc", SCE_O_WRONLY | SCE_O_CREAT, 0777);
+	fh = sceIoOpen("ux0:data/vitacord/user/cr.ecr", SCE_O_WRONLY | SCE_O_CREAT, 0777);
 	sceIoWrite(fh, _tok.c_str(), strlen(_tok.c_str()));
 	sceIoClose(fh);
+	
 }
 
 
 void DiscordApp::Start(){
 	
+	std::string directories[8] = { "ux0:data" , "ux0:data/vitacord" , "ux0:data/vitacord/user" ,"ux0:data/vitacord/attachments"
+									, "ux0:data/vitacord/attachments/images" , "ux0:data/vitacord/attachments/other"
+										, "ux0:data/vitacord/attachments/thumbnails" , "ux0:data/vitacord/settings" };
+	
+	
+	for(int i = 0 ; i < 8 ; i++){
+		struct SceIoStat * dirStat = (SceIoStat*)malloc(sizeof(SceIoStat));
+		if(sceIoGetstat(directories[i].c_str() , dirStat) < 0){
+			sceIoMkdir(directories[i].c_str() , 0777);
+		}
+	}
 	
 	
 	logSD("load userdata file");

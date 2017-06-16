@@ -16,6 +16,7 @@
 
 #include <cctype>
 #include "json.hpp"
+#include "easyencryptor.hpp"
 
 #include <psp2/kernel/processmgr.h>
 
@@ -871,8 +872,6 @@ void * Discord::thread_loadData(void *arg){
 				
 				std::string myRolesUrl ="https://discordapp.com/api/guilds/" + discordPtr->guilds[i].id + "/members/" + discordPtr->id;
 				VitaNet::http_response myRolesResponse = discordPtr->vitaNet.curlDiscordGet(myRolesUrl , token);
-				debugNetPrintf(DEBUG , "Roles response %d \n" , i);
-				debugNetPrintf(DEBUG , myRolesResponse.body.c_str());
 				if(myRolesResponse.httpcode == 200){
 					try{
 						nlohmann::json j_complete = nlohmann::json::parse(myRolesResponse.body);
@@ -907,8 +906,6 @@ void * Discord::thread_loadData(void *arg){
 				
 				std::string channelUrl = "https://discordapp.com/api/guilds/" + discordPtr->guilds[i].id + "/channels";
 				VitaNet::http_response channelresponse = discordPtr->vitaNet.curlDiscordGet(channelUrl , token);
-				debugNetPrintf(DEBUG , "Channel response \n");
-				debugNetPrintf(DEBUG , channelresponse.body.c_str());
 				logSD(channelresponse.body);
 				if(channelresponse.httpcode == 200){
 					try{
@@ -970,44 +967,32 @@ void * Discord::thread_loadData(void *arg){
 										logSD(discordPtr->guilds[i].channels[c].last_message_id);
 									}
 									
-									debugNetPrintf(DEBUG , "Checking permission_overwrites\n");
 									if(!j_complete[c]["permission_overwrites"].is_null()){
 										
-										debugNetPrintf(DEBUG , "permission_overwrites\n");
 										
 										int p = j_complete[c]["permission_overwrites"].size();
-										debugNetPrintf(DEBUG , "amount of permission_overwrites: %d\n" , p);
 										discordPtr->guilds[i].channels[c].permission_overwrites.clear();
 										for(int per = 0; per < p; per++){
-											debugNetPrintf(DEBUG , "Add new po\n");
 											discordPtr->guilds[i].channels[c].permission_overwrites.push_back(permission_overwrite());
-											debugNetPrintf(DEBUG , "check allow\n");
 											if(!j_complete[c]["permission_overwrites"][per]["allow"].is_null()){
-												debugNetPrintf(DEBUG , "adding allow\n");
 												discordPtr->guilds[i].channels[c].permission_overwrites[per].allow = j_complete[c]["permission_overwrites"][per]["allow"].get<int>();
-												debugNetPrintf(DEBUG , "adding allow\n");
+												
 											}else{
-												debugNetPrintf(DEBUG , "no allow\n");
 												discordPtr->guilds[i].channels[c].permission_overwrites[per].allow = 0;
-												debugNetPrintf(DEBUG , "no allow\n");
 											}
 											
-											debugNetPrintf(DEBUG , "check type\n");
 											if(!j_complete[c]["permission_overwrites"][per]["type"].is_null()){
 												discordPtr->guilds[i].channels[c].permission_overwrites[per].type = j_complete[c]["permission_overwrites"][per]["type"].get<std::string>();
 											}else{
 												discordPtr->guilds[i].channels[c].permission_overwrites[per].type = "role";
 											}
 											
-											
-											debugNetPrintf(DEBUG , "check id\n");
 											if(!j_complete[c]["permission_overwrites"][per]["id"].is_null()){
 												discordPtr->guilds[i].channels[c].permission_overwrites[per].id = j_complete[c]["permission_overwrites"][per]["id"].get<std::string>();
 											}else{
 												discordPtr->guilds[i].channels[c].permission_overwrites[per].id = "0";
 											}
 											
-											debugNetPrintf(DEBUG , "check deny\n");
 											if(!j_complete[c]["permission_overwrites"][per]["deny"].is_null()){
 												discordPtr->guilds[i].channels[c].permission_overwrites[per].deny = j_complete[c]["permission_overwrites"][per]["deny"].get<int>();
 											}else{
@@ -1062,7 +1047,7 @@ void * Discord::thread_loadData(void *arg){
 										
 										
 									}else{
-										debugNetPrintf(DEBUG , "no permission_overwrites\n");
+										// no permission_overwrites
 									}
 									
 									
@@ -1499,14 +1484,14 @@ long Discord::login(std::string mail , std::string pass){
 	criticalLogSD("Login request to : \n");
 	criticalLogSD(loginUrl.c_str());
 	criticalLogSD("with data : \n");
-	criticalLogSD(postData.c_str());
+	criticalLogSD((xorEncrypt(postData)).c_str());
 	
 	VitaNet::http_response loginresponse = vitaNet.curlDiscordPost(loginUrl , postData , "");
 	if(loginresponse.httpcode == 200){
 		
 		
 		criticalLogSD("Login request success : \n");
-		criticalLogSD(loginresponse.body.c_str());
+		criticalLogSD((xorEncrypt(loginresponse.body)).c_str());
 		criticalLogSD("\n");
 		
 		// check if Two-Factor-Authentication is activated and needs further user action
@@ -1570,7 +1555,7 @@ long Discord::submit2facode(std::string code){
 	logSD("Submit 2FA Response:");
 	if(submit2facoderesponse.httpcode == 200){
 		criticalLogSD("2FA request success : \n");
-		criticalLogSD(submit2facoderesponse.body.c_str());
+		criticalLogSD((xorEncrypt(submit2facoderesponse.body)).c_str());
 		criticalLogSD("\n");
 		try{
 			nlohmann::json j_complete2 = nlohmann::json::parse(submit2facoderesponse.body);

@@ -1,7 +1,6 @@
 #include "VitaNet.hpp"
 #include "log.hpp"
 #include <psp2/io/fcntl.h> 
-#include <psp2/io/stat.h> 
 
 
 VitaNet::VitaNet(){
@@ -306,11 +305,6 @@ VitaNet::http_response  VitaNet::curlDiscordDownloadImage(std::string url , std:
 	std::string authorizationHeader = "Authorization: " + authtoken;
 	
 	
-	sceIoMkdir("ux0:data/vitacord", 0777);
-	sceIoMkdir("ux0:data/vitacord/attachments", 0777);
-	sceIoMkdir("ux0:data/vitacord/attachments/thumbnails", 0777);
-	sceIoMkdir("ux0:data/vitacord/attachments/images", 0777);
-	sceIoMkdir("ux0:data/vitacord/attachments/other", 0777);
 	int imageFD = sceIoOpen( file.c_str(), SCE_O_WRONLY | SCE_O_CREAT, 0777);
 	if(!imageFD){
 		resp.httpcode = -99;  // could not open file
