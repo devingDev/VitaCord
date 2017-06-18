@@ -12,6 +12,8 @@
 #define min(a, b) (((a) < (b)) ? (a) : (b))
 #define max(a, b) (((a) > (b)) ? (a) : (b))
 
+
+
 VitaGUI::VitaGUI(){
 	vita2d_init();
 	vita2d_set_clear_color(RGBA8(0x40, 0x40, 0x40, 0xFF));
@@ -31,6 +33,11 @@ VitaGUI::VitaGUI(){
 	vita2dFontSmall = vita2d_load_font_file("app0:assets/font/whitney-book.ttf");
 	vita2dFontNormal = vita2d_load_font_file("app0:assets/font/whitney-book.ttf");
 	vita2dFontBig = vita2d_load_font_file("app0:assets/font/whitney-book.ttf");
+	
+	texA = vita2d_load_PNG_file("app0:assets/1f64b.png");
+	texB = vita2d_load_PNG_file("app0:assets/1f64c.png");
+	texC = vita2d_load_PNG_file("app0:assets/1f64d.png");
+	
 	
 	std::string bgPath = "app0:assets/images/Vitacord-Background-8BIT.png";
 	backgroundImage = vita2d_load_PNG_file(bgPath.c_str());
@@ -103,9 +110,9 @@ VitaGUI::VitaGUI(){
 	
 }
 void VitaGUI::loadEmojiFiles(){
-	// EMOJI LOADER:
-	emojis.clear();
-	emojis.push_back(emoji_icon());
+	// EMOJI LOADER: .. OR NOT ^^ 
+	//emojis.clear();
+	//emojis.push_back(emoji_icon());
 }
 
 VitaGUI::~VitaGUI(){
@@ -162,6 +169,8 @@ void VitaGUI::DrawStatusBar() {
 	vita2d_font_draw_text(vita2dFontSmall, 875 - vita2d_font_text_width(vita2dFontSmall, 20, string), 22, RGBA8(255, 255, 255, 255), 20, string);
 	}
 
+unsigned int currentEmojiIndexTest = 0;
+unsigned int testFrames = 0;
 
 void VitaGUI::Draw(){
 	
@@ -199,6 +208,28 @@ void VitaGUI::Draw(){
 	if(state == 0){
 		
 		DrawLoginScreen();
+		
+		for(unsigned int drawEmojiTest = 0; drawEmojiTest <  discordPtr->emojiTestArray.size() ; drawEmojiTest++){
+			
+			vita2d_draw_texture_part(discordPtr->spritesheetEmoji 
+				, emojiTestScrollX + discordPtr->emojiMap[discordPtr->emojiTestArray[drawEmojiTest]].x * discordPtr->emojiWidth
+				, emojiTestScrollY + discordPtr->emojiMap[discordPtr->emojiTestArray[drawEmojiTest]].y * discordPtr->emojiHeight
+				, discordPtr->emojiMap[discordPtr->emojiTestArray[drawEmojiTest]].x * discordPtr->emojiWidth
+				, discordPtr->emojiMap[discordPtr->emojiTestArray[drawEmojiTest]].y * discordPtr->emojiHeight
+				, discordPtr->emojiWidth
+				, discordPtr->emojiHeight );
+		}
+		
+		/*if(texA != NULL){
+			vita2d_draw_texture( texA , 0 , 72);
+		}
+		if(texB != NULL){
+			vita2d_draw_texture( texB , 72 , 72);
+		}
+		if(texC != NULL){
+			vita2d_draw_texture( texC , 144 , 72);
+		}*/
+		
 		
 	}else if(state == 1){
 		// BG
@@ -434,6 +465,7 @@ void VitaGUI::Draw(){
 	
 	vita2d_end_drawing();
 	vita2d_swap_buffers();
+	vita2d_wait_rendering_done();
 	
 }
 
@@ -564,7 +596,10 @@ int VitaGUI::analogScrollRight(int x , int y){
 int VitaGUI::analogScrollLeft(int x , int y){
 	
 	
-	if(state == 1){
+	if(state==0){
+		emojiTestScrollX += x;
+		emojiTestScrollY -= y;
+	}else if(state == 1){
 		loadingAnimX += x;
 		loadingAnimY -= y;
 	}
@@ -621,6 +656,7 @@ int VitaGUI::analogScrollLeft(int x , int y){
 
 int VitaGUI::click(int x , int y){
 	if(state == 0){
+		currentEmojiIndexTest+=13;
 		for(unsigned int i = 0 ; i < loginInputs.size() ; i++){
 			if( x > loginInputs[i].x && x < loginInputs[i].x + loginInputs[i].w){
 				if( y > loginInputs[i].y && y < loginInputs[i].y + loginInputs[i].h){
@@ -905,12 +941,18 @@ bool VitaGUI::setMessageBoxes(){
 		for(unsigned int i = 0; i < discordPtr->guilds[discordPtr->currentGuild].channels[discordPtr->currentChannel].messages.size() ; i++){
 			
 			messagebox boxC;
+			
+			boxC.messageID = discordPtr->guilds[discordPtr->currentGuild].channels[discordPtr->currentChannel].messages[i].id;
 			boxC.x = messageScrollX + 230;
 			boxC.y = 40  + allHeight ; // 40 = statusbar height
 			boxC.username = discordPtr->guilds[discordPtr->currentGuild].channels[discordPtr->currentChannel].messages[i].author.username;
-			boxC.content = "";
-			boxC.lineCount = wordWrap( discordPtr->guilds[discordPtr->currentGuild].channels[discordPtr->currentChannel].messages[i].content , 80 , boxC.content);
-			textHeight = boxC.lineCount * vita2d_font_text_height(vita2dFont[15], 15, (char*)"H");
+			boxC.content = discordPtr->guilds[discordPtr->currentGuild].channels[discordPtr->currentChannel].messages[i].content;
+			//boxC.lineCount = wordWrap( discordPtr->guilds[discordPtr->currentGuild].channels[discordPtr->currentChannel].messages[i].content , 30 , boxC.content);
+			// wrapping in discord.cpp bcz of emoji :
+			// which is more expensive on the cpu ? searching the whole string for newlines when wordwrapping or text_Height() ?
+			textHeight = vita2d_font_text_height(vita2dFont[32] , 32 , (char*)boxC.content.c_str() );
+			// why not just use text_height() on the content?? :) 
+			//textHeight = boxC.lineCount * vita2d_font_text_height(vita2dFont[15], 15, (char*)"H");
 			boxC.messageHeight = max(64, textHeight + topMargin + bottomMargin);
 			
 			
@@ -920,6 +962,7 @@ bool VitaGUI::setMessageBoxes(){
 			boxC.channelID = discordPtr->guilds[discordPtr->currentGuild].channels[discordPtr->currentChannel].id;
 			boxC.messageID = discordPtr->guilds[discordPtr->currentGuild].channels[discordPtr->currentChannel].messages[i].id;
 			
+			// ATTACHMENTS
 			if( ! discordPtr->guilds[discordPtr->currentGuild].channels[discordPtr->currentChannel].messages[i].attachment.isEmpty ){
 				if(discordPtr->guilds[discordPtr->currentGuild].channels[discordPtr->currentChannel].messages[i].attachment.isData ){
 					boxC.showAttachmentAsBinary = true;
@@ -953,11 +996,20 @@ bool VitaGUI::setMessageBoxes(){
 				boxC.showAttachmentAsImage = false;
 				boxC.showAttachmentAsBinary = false;
 			}
-			boxC.messageID = discordPtr->guilds[discordPtr->currentGuild].channels[discordPtr->currentChannel].messages[i].id;
+			
+			
+			// EMOJIS:
+			boxC.emojis.clear();
+			for(unsigned int e = 0; e < discordPtr->guilds[discordPtr->currentGuild].channels[discordPtr->currentChannel].messages[i].emojis.size() ; e++){
+				boxC.emojis.push_back(m_emoji());
+				boxC.emojis[e].posX = discordPtr->guilds[discordPtr->currentGuild].channels[discordPtr->currentChannel].messages[i].emojis[e].posX;
+				boxC.emojis[e].posY = discordPtr->guilds[discordPtr->currentGuild].channels[discordPtr->currentChannel].messages[i].emojis[e].posY;
+				boxC.emojis[e].spriteSheetX = discordPtr->guilds[discordPtr->currentGuild].channels[discordPtr->currentChannel].messages[i].emojis[e].spriteSheetX;
+				boxC.emojis[e].spriteSheetY = discordPtr->guilds[discordPtr->currentGuild].channels[discordPtr->currentChannel].messages[i].emojis[e].spriteSheetY;
+			}
 			
 			
 			allHeight += boxC.messageHeight;
-			
 			messageBoxes.push_back(boxC);
 		}
 		messageScrollYMin =  -( allHeight )  + 430; 
@@ -1026,8 +1078,8 @@ void VitaGUI::setDirectMessageMessagesBoxes(){
 			boxC.y = directMessageMessagesScrollY + allHeight;
 			boxC.username = discordPtr->directMessages[discordPtr->currentDirectMessage].messages[i].author.username;
 			boxC.content = "";
-			boxC.lineCount = wordWrap( discordPtr->directMessages[discordPtr->currentDirectMessage].messages[i].content , 80 , boxC.content);
-			textHeight = boxC.lineCount * vita2d_font_text_height(vita2dFont[15], 15, (char*)"H");
+			boxC.lineCount = wordWrap( discordPtr->directMessages[discordPtr->currentDirectMessage].messages[i].content , 30 , boxC.content);
+			textHeight = boxC.lineCount * vita2d_font_text_height(vita2dFont[32], 32, (char*)"H");
 			boxC.messageHeight = max(64, textHeight + topMargin + bottomMargin);
 			allHeight += boxC.messageHeight;
 			
@@ -1073,6 +1125,7 @@ void VitaGUI::showLoginCue(){
 	
 	vita2d_end_drawing();
 	vita2d_swap_buffers();
+	vita2d_wait_rendering_done();
 }
 
 void VitaGUI::unshowLoginCue(){
@@ -1084,7 +1137,7 @@ void VitaGUI::unshowLoginCue(){
 	
 	vita2d_end_drawing();
 	vita2d_swap_buffers();
-	
+	vita2d_wait_rendering_done();
 }
 
 void VitaGUI::DrawLoginScreen(){
@@ -1103,7 +1156,7 @@ void VitaGUI::DrawGuildsOnSidebar(){
 	for(unsigned int i = 0 ; i < guildBoxes.size() ; i++){
 		height = guildScrollY + i * GUILD_HEIGHT;
 		if(height < MAX_DRAW_HEIGHT && height  > MIN_DRAW_HEIGHT){
-			vita2d_font_draw_text(vita2dFont[18] , guildScrollX + 8, 100 + guildScrollY + i * GUILD_HEIGHT + 40, RGBA8(255,255,255,255), GUILD_TITLE_TEXT_SIZE_PIXEL, guildBoxes[i].name.c_str());
+			vita2d_font_draw_text(vita2dFont[GUILD_TITLE_TEXT_SIZE_PIXEL] , guildScrollX + 8, 100 + guildScrollY + i * GUILD_HEIGHT + 40, RGBA8(255,255,255,255), GUILD_TITLE_TEXT_SIZE_PIXEL, guildBoxes[i].name.c_str());
 			
 		}
 	}
@@ -1117,7 +1170,7 @@ void VitaGUI::DrawChannelsOnSidebar(){
 				vita2d_draw_rectangle(channelScrollX , 100 + channelScrollY + i * CHANNEL_HEIGHT, 215 , CHANNEL_HEIGHT, RGBA8(40, 43, 48, 255));
 				vita2d_draw_rectangle(channelScrollX , 100 + channelScrollY + i * CHANNEL_HEIGHT, 4 , CHANNEL_HEIGHT, RGBA8(95, 118, 198, 255));
 			}
-			vita2d_font_draw_text(vita2dFont[18] , channelScrollX + 8, 100 + channelScrollY + i * CHANNEL_HEIGHT + 42  , RGBA8(255,255,255,255), CHANNEL_TITLE_TEXT_SIZE_PIXEL, channelBoxes[i].name.c_str());
+			vita2d_font_draw_text(vita2dFont[CHANNEL_TITLE_TEXT_SIZE_PIXEL] , channelScrollX + 8, 100 + channelScrollY + i * CHANNEL_HEIGHT + 42  , RGBA8(255,255,255,255), CHANNEL_TITLE_TEXT_SIZE_PIXEL, channelBoxes[i].name.c_str());
 		}
 	}
 	
@@ -1147,8 +1200,8 @@ void VitaGUI::DrawMessages(){
 				
 			}
 			
-				vita2d_font_draw_text(vita2dFont[15], 283, yPos + 26, RGBA8(255, 255, 255, 255), 15, messageBoxes[i].username.c_str());
-				vita2d_font_draw_text(vita2dFont[15], 293, yPos + 50, RGBA8(255, 255, 255, 255), 15, messageBoxes[i].content.c_str());
+				vita2d_font_draw_text(vita2dFont[26], 283, yPos + 26, RGBA8(255, 255, 255, 255), 26, messageBoxes[i].username.c_str());
+				vita2d_font_draw_text(vita2dFont[32], 293, yPos + 50, RGBA8(255, 255, 255, 255), 32, messageBoxes[i].content.c_str());
 				 
 			if( messageBoxes[i].showAttachmentAsImage ){
 				vita2d_draw_rectangle( 240 , yPos + height - ATTACHMENT_HEIGHT - 16 , ATTACHMENT_HEIGHT , ATTACHMENT_HEIGHT , RGBA8(0x9F , 0x9F , 0x9F , 0xFF) );
@@ -1161,14 +1214,27 @@ void VitaGUI::DrawMessages(){
 						}
 					}
 				}
-				vita2d_font_draw_text(vita2dFont[17] ,  240 + ATTACHMENT_HEIGHT + 8 , yPos + height - 32 , RGBA8(255, 255, 255, 255), 17 , messageBoxes[i].attachmentFullText.c_str() );
+				vita2d_font_draw_text(vita2dFont[24] ,  240 + ATTACHMENT_HEIGHT + 8 , yPos + height - 32 , RGBA8(255, 255, 255, 255), 24 , messageBoxes[i].attachmentFullText.c_str() );
 			}else if( messageBoxes[i].showAttachmentAsBinary ){
 				vita2d_draw_rectangle( 240 , yPos + height - ATTACHMENT_HEIGHT - 16 , ATTACHMENT_HEIGHT , ATTACHMENT_HEIGHT , RGBA8(0x9F , 0x9F , 0x9F , 0xFF) );
 				
 				if (  defaultBinaryThumbnail != NULL){
 					vita2d_draw_texture( defaultBinaryThumbnail , 240 , yPos + height - ATTACHMENT_HEIGHT - 16);
 				}
-				vita2d_font_draw_text(vita2dFont[17] ,  240 + ATTACHMENT_HEIGHT + 8 , yPos + height - 32 , RGBA8(255, 255, 255, 255), 17 , messageBoxes[i].attachmentFullText.c_str() );
+				vita2d_font_draw_text(vita2dFont[24] ,  240 + ATTACHMENT_HEIGHT + 8 , yPos + height - 32 , RGBA8(255, 255, 255, 255), 24 , messageBoxes[i].attachmentFullText.c_str() );
+			}
+			
+			// DRAW EMOJIS:
+			for(unsigned int em = 0; em < messageBoxes[i].emojis.size() ; em++){
+				if(discordPtr->spritesheetEmoji  != NULL){
+					vita2d_draw_texture_part(discordPtr->spritesheetEmoji 
+					, 293 + ( messageBoxes[i].emojis[em].posX * discordPtr->emojiWidth )
+					, yPos + 32 + messageBoxes[i].emojis[em].posY * discordPtr->emojiHeight
+					, messageBoxes[i].emojis[em].spriteSheetX * discordPtr->emojiWidth
+					, messageBoxes[i].emojis[em].spriteSheetY * discordPtr->emojiHeight
+					, discordPtr->emojiWidth
+					, discordPtr->emojiHeight );
+				}
 			}
 				
 			// draw default icon.
@@ -1176,7 +1242,7 @@ void VitaGUI::DrawMessages(){
 			// Then apply either the default icon pointer or loaded user icon pionter to this vita2d_texture pointer.
 			// For now we'll just draw the default icon for all users.
 			vita2d_draw_texture(userIconDefaultImage, 243, yPos + 16);
-			}
+		}
 
 		
 		yPos += height; // add message height to yPos
@@ -1199,7 +1265,7 @@ void VitaGUI::DrawDirectMessageUsersOnSidebar(){
 				vita2d_draw_rectangle(directMessageScrollX , 100 + directMessageScrollY + i * CHANNEL_HEIGHT, 4 , CHANNEL_HEIGHT, RGBA8(95, 118, 198, 255));
 			}
 
-			vita2d_font_draw_text(vita2dFont[18] , directMessageScrollX + 8, 100 + directMessageScrollY + i * CHANNEL_HEIGHT + 42, RGBA8(255,255,255,255), CHANNEL_TITLE_TEXT_SIZE_PIXEL, directMessageBoxes[i].name.c_str());
+			vita2d_font_draw_text(vita2dFont[CHANNEL_TITLE_TEXT_SIZE_PIXEL] , directMessageScrollX + 8, 100 + directMessageScrollY + i * CHANNEL_HEIGHT + 42, RGBA8(255,255,255,255), CHANNEL_TITLE_TEXT_SIZE_PIXEL, directMessageBoxes[i].name.c_str());
 			
 		}
 	}

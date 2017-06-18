@@ -82,17 +82,27 @@ vita_create_vpk(${SHORT_NAME}.vpk ${VITA_TITLEID} ${SHORT_NAME}.self
   FILE sce_sys/livearea/contents/frame1.png sce_sys/livearea/contents/frame1.png
   FILE sce_sys/livearea/contents/startup.png sce_sys/livearea/contents/startup.png
   FILE sce_sys/livearea/contents/template.xml sce_sys/livearea/contents/template.xml
+  
+  FILE assets/emoji/emojispritesheettable.json assets/emoji/emojispritesheettable.json
+  FILE assets/emoji/emojispritesheet.png assets/emoji/emojispritesheet.png
+  
   FILE assets/font/droidsans.ttf assets/font/droidsans.ttf
   FILE assets/font/whitney-book.ttf assets/font/whitney-book.ttf
-  FILE assets/images/Vitacord-Background-8BIT.png assets/images/Vitacord-Background-8BIT.png
+  
+  FILE assets/images/BinaryFile.png assets/images/BinaryFile.png
   FILE assets/images/Vitacord-DMIcon-8BIT.png assets/images/Vitacord-DMIcon-8BIT.png
-  FILE assets/images/Vitacord-USERIcondefault-8BIT.png assets/images/Vitacord-USERIcondefault-8BIT.png
-  FILE assets/images/Vitacord-GuildsBG-8BIT.png assets/images/Vitacord-GuildsBG-8BIT.png
+  FILE assets/images/Vitacord-statbar-icon.png assets/images/Vitacord-statbar-icon.png
   FILE assets/images/Vitacord-Loading-8BIT.png assets/images/Vitacord-Loading-8BIT.png
+  FILE assets/images/Vitacord-GuildsBG-8BIT.png assets/images/Vitacord-GuildsBG-8BIT.png
   FILE assets/images/Vitacord-LoginForm-8BIT.png assets/images/Vitacord-LoginForm-8BIT.png
   FILE assets/images/Vitacord-messager-input.png assets/images/Vitacord-messager-input.png
+  FILE assets/images/Vitacord-Background-8BIT.png assets/images/Vitacord-Background-8BIT.png
+  FILE assets/images/Vitacord-statbar-battery.png assets/images/Vitacord-statbar-battery.png
+  FILE assets/images/Vitacord-USERIcondefault-8BIT.png assets/images/Vitacord-USERIcondefault-8BIT.png
   FILE assets/images/Vitacord-sidebar-default-usericon.png assets/images/Vitacord-sidebar-default-usericon.png
-  FILE assets/images/Vitacord-statbar-icon.png assets/images/Vitacord-statbar-icon.png
+  FILE assets/images/Vitacord-statbar-battery-charge.png assets/images/Vitacord-statbar-battery-charge.png
+  
+  
   FILE assets/images/loading/thumb001.png assets/images/loading/thumb001.png
   FILE assets/images/loading/thumb002.png assets/images/loading/thumb002.png
   FILE assets/images/loading/thumb003.png assets/images/loading/thumb003.png
@@ -127,8 +137,5 @@ vita_create_vpk(${SHORT_NAME}.vpk ${VITA_TITLEID} ${SHORT_NAME}.self
   FILE assets/images/loading/thumb032.png assets/images/loading/thumb032.png
   FILE assets/images/loading/thumb033.png assets/images/loading/thumb033.png
   FILE assets/images/loading/thumb034.png assets/images/loading/thumb034.png
-  FILE assets/images/Vitacord-statbar-battery.png assets/images/Vitacord-statbar-battery.png
-  FILE assets/images/Vitacord-statbar-battery-charge.png assets/images/Vitacord-statbar-battery-charge.png
-  FILE assets/images/BinaryFile.png assets/images/BinaryFile.png
 )
 

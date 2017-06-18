@@ -67,7 +67,7 @@ void DiscordApp::loadUserDataFromFile ( ) {
 		
 		debugNetPrintf(DEBUG , "loading pass!\n");
 		int fhPass = sceIoOpen ( "ux0:data/vitacord/user/set.ecr" , SCE_O_RDONLY , 0777 );
-		fileSize = sceIoLseek ( fhPass, 0, SCE_SEEK_END );
+		fileSize = sceIoLseek ( fhPass, 0, SCE_SEEK_END ); 
 		sceIoLseek ( fhPass, 0, SCE_SEEK_SET );
 		if ( fileSize >= 1 ) {
 			char * bufferPass = ( char * ) malloc ( fileSize );
@@ -195,9 +195,10 @@ void DiscordApp::Start(){
 		
 		logSD("vitagui draw");
 		// DRAW 
-		sceKernelDelayThread(5000);
+		// instead of delay use -> vita2d_wait_rendering_done();
+		//sceKernelDelayThread(5000);
 		vitaGUI.Draw();
-		sceKernelDelayThread(5000);
+		//sceKernelDelayThread(5000);
 		
 		
 		logSD("vitapad read");

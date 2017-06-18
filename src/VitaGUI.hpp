@@ -11,13 +11,13 @@
 #define MAX_DRAW_HEIGHT 550
 #define MIN_DRAW_HEIGHT -800
 
-#define MAX_FONT_SIZE 32
+#define MAX_FONT_SIZE 48
 
-#define MESSAGE_AUTHOR_TEXT_SIZE_PIXEL 15
+#define MESSAGE_AUTHOR_TEXT_SIZE_PIXEL 26
 #define MESSAGE_CONTENT_TEXT_SIZE_PIXEL 24
-#define CHANNEL_TITLE_TEXT_SIZE_PIXEL 18
+#define CHANNEL_TITLE_TEXT_SIZE_PIXEL 24
 #define CHANNEL_TOPIC_TEXT_SIZE_PIXEL 14
-#define GUILD_TITLE_TEXT_SIZE_PIXEL 18
+#define GUILD_TITLE_TEXT_SIZE_PIXEL 24
 
 
 #define MESSAGE_INPUT_HEIGHT 72
@@ -67,15 +67,6 @@ class VitaGUI{
 		
 		void SetStateToLastState();
 		
-		typedef struct{
-			std::string name;
-			int id;
-			vita2d_texture *icon;
-		} emoji_icon;
-		
-		std::vector<emoji_icon> emojis;
-		
-		
 		
 		void DrawLoginScreen();
 		void DrawGuildsOnSidebar();
@@ -90,10 +81,16 @@ class VitaGUI{
 		
 		void setUserInfo();
 		
+		int emojiTestScrollX = 0;
+		int emojiTestScrollY = 0;
 		
 		bool clickedMessage = false;
 		messagebox deleteMessageBox;
 		messagebox editMessageBox;
+		
+		vita2d_texture * texA ;
+		vita2d_texture * texB;
+		vita2d_texture * texC;
 	
 	private:
 		

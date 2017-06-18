@@ -8,8 +8,10 @@
 #include <sstream>
 #include <pthread.h>
 #include <vita2d.h>
+#include <unordered_map>
 
 #include "VitaNet.hpp"
+#include "json.hpp"
 
 #define PERMISSION_READ_MESSAGES 0x400 //1024
 
@@ -25,8 +27,10 @@ class Discord{
 		}user;
 		typedef struct{
 			int codepoint;
-			int index;
-			int x;
+			int posX;
+			int posY;
+			int spriteSheetX;
+			int spriteSheetY;
 		} message_emoji;
 		typedef struct {
 			
@@ -98,6 +102,17 @@ class Discord{
 			std::vector<user> recipients;
 			std::vector<message> messages;
 		}directMessage;
+				
+		typedef struct {
+			vita2d_texture * icon;
+			int offset;
+			int size;
+			bool loaded = false;
+		}emojiOld;
+		typedef struct {
+			int x;
+			int y;
+		}emoji;
 		
 		Discord();
 		~Discord();
@@ -155,7 +170,13 @@ class Discord{
 		bool inDirectMessageChannel;
 		bool loadingDirectMessages ;
 	
-	
+		vita2d_texture * spritesheetEmoji;
+		int emojiWidth = 32;
+		int emojiHeight = 32;
+		std::unordered_map <int, emoji> emojiMap; // first int is utf32 codepoint , second int is offset in file
+		std::unordered_map<int, emoji>::iterator emojiMapIterator;
+		int emojiCount;
+		std::vector<int> emojiTestArray;
 	private:
 		VitaNet vitaNet;
 		bool verified, mfa_enabled; // mfa == twofactor its the same
@@ -184,7 +205,8 @@ class Discord{
 		uint64_t fetchTimeMS = 4000; // 4 seconds refreshing
 		uint64_t currentTimeMS;
 		bool forceRefreshMessages;
-	
+
+		nlohmann::json emojiJsonData;
 };
 
 
