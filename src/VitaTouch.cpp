@@ -7,8 +7,8 @@ VitaTouch::VitaTouch(){
 	initTouch();
 }
 void VitaTouch::initTouch(){
-	sceTouchSetSamplingState(SCE_TOUCH_PORT_FRONT, 1);
-	sceTouchSetSamplingState(SCE_TOUCH_PORT_BACK, 1);
+	sceTouchSetSamplingState(SCE_TOUCH_PORT_FRONT, SCE_TOUCH_SAMPLING_STATE_START);
+	sceTouchSetSamplingState(SCE_TOUCH_PORT_BACK, SCE_TOUCH_SAMPLING_STATE_START);
 	sceTouchEnableTouchForce(SCE_TOUCH_PORT_FRONT);
 	sceTouchEnableTouchForce(SCE_TOUCH_PORT_BACK);
 	
