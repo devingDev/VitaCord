@@ -1,5 +1,6 @@
 
 #include <psp2/ctrl.h>
+#include <psp2/registrymgr.h>
 #include "VitaPad.hpp"
 #include <math.h>
 
@@ -54,10 +55,18 @@ void VitaPad::Read(){
 		righttrigger = true;
 	if(vitapad.buttons & SCE_CTRL_TRIANGLE)
 		triangle = true;
-	if(vitapad.buttons & SCE_CTRL_CIRCLE)
-		circle = true;
-	if(vitapad.buttons & SCE_CTRL_CROSS)
-		cross = true;
+	if(vitapad.buttons & SCE_CTRL_CIRCLE){
+		if(!buttonAssign)
+			cross = true;
+		else
+			circle = true;
+	}
+	if(vitapad.buttons & SCE_CTRL_CROSS){
+		if(!buttonAssign)
+			circle = true;
+		else
+			cross = true;
+	}
 	if(vitapad.buttons & SCE_CTRL_SQUARE)
 		square = true;	
 	if(vitapad.buttons & SCE_CTRL_VOLUP)
@@ -92,9 +101,24 @@ void VitaPad::Read(){
 		right_analog_calibrated_y = 0;
 	}
 	
+
 	
 	
+}
+
+int VitaPad::CheckButtonAssign(){
 	
+	int ret = 0;
+	
+	if(buttonAssign!=-1)
+		return buttonAssign;
+
+	ret = sceRegMgrGetKeyInt("/CONFIG/SYSTEM", "button_assign", &buttonAssign);
+	if (ret < 0) {
+		return ret;
+	}else{
+		return buttonAssign;
+	}
 }
 
 

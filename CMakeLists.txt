@@ -59,6 +59,7 @@ target_link_libraries(${SHORT_NAME}.elf
   SceSysmodule_stub
   ScePower_stub
   SceCommonDialog_stub
+  SceRegistryMgr_stub
   ${CURL_LIBRARIES}
   ${OPENSSL_LIBRARIES}
   c
