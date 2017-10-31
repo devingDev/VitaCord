@@ -24,6 +24,8 @@ class VitaPad{
 		unsigned char left_analog_calibration_y = 128;
 		unsigned char right_analog_calibration_x = 128;
 		unsigned char right_analog_calibration_y = 128;
+		int buttonAssign = -1;
+		int CheckButtonAssign();
 		SceCtrlData vitapad;
 	
 };
