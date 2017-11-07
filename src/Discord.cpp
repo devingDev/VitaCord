@@ -422,8 +422,10 @@ void Discord::getChannelMessages(int channelIndex){
 					}
 
 					newMessage.attachment.isEmpty = true;
-
-					if(!j_complete[iR]["attachments"].is_null()){
+					
+					bool attachmentDownloadEnabled = false;
+					
+					if(!j_complete[iR]["attachments"].is_null() && attachmentDownloadEnabled){
 						if(!j_complete[iR]["attachments"][0].is_null()){
 
 							newMessage.attachment.isEmpty = false;
@@ -860,67 +862,87 @@ void * Discord::thread_loadData(void *arg){
 				logSD(channelresponse.body);
 				if(channelresponse.httpcode == 200){
 					try{
+						logSD("Create nlohmann json object by parsing response");
 						nlohmann::json j_complete = nlohmann::json::parse(channelresponse.body);
 						if(!j_complete.is_null()){
 							discordPtr->guilds[i].channels.clear();
 							int channelsAmount = j_complete.size();
+							
+							logSD("Channel amount " + std::to_string(channelsAmount));
+							
 							for(int c = 0; c < channelsAmount; c++){
 
+								logSD("Adding to be filled out channel to channel vector");
 								discordPtr->guilds[i].channels.push_back(channel());
+								logSD("Added to be filled out channel to channel vector");
 
+								logSD("Check current json object is null");
 								if(!j_complete[c].is_null()){
 
+									logSD(" current json object was not null.");
 									if(!j_complete[c]["type"].is_null()){
-										discordPtr->guilds[i].channels[c].type = j_complete[c]["type"].get<std::string>();
-										logSD(discordPtr->guilds[i].channels[c].type);
+										logSD("parsing type, which was not null");
+										discordPtr->guilds[i].channels[c].type = j_complete[c]["type"].get<int>();
+										logSD(std::to_string(discordPtr->guilds[i].channels[c].type));
 									}else{
-										discordPtr->guilds[i].channels[c].type = "text";
-										logSD(discordPtr->guilds[i].channels[c].type);
+										logSD("setting type = 0 because json.type was null");
+										discordPtr->guilds[i].channels[c].type = 0;
+										logSD(std::to_string(discordPtr->guilds[i].channels[c].type));
 									}
 
 									if(!j_complete[c]["id"].is_null()){
+										logSD("parsing id, which was not null");
 										discordPtr->guilds[i].channels[c].id = j_complete[c]["id"].get<std::string>();
 										logSD(discordPtr->guilds[i].channels[c].id);
 									}else{
+										logSD("setting id = 00000000 because json.id was null");
 										discordPtr->guilds[i].channels[c].id = "00000000";
 										logSD(discordPtr->guilds[i].channels[c].id);
 									}
 
 									if(!j_complete[c]["name"].is_null()){
+										logSD("parsing name, which was not null");
 										discordPtr->guilds[i].channels[c].name = j_complete[c]["name"].get<std::string>();
 										logSD(discordPtr->guilds[i].channels[c].name);
 									}else{
+										logSD("setting name unavailable because json.name was null");
 										discordPtr->guilds[i].channels[c].name = "name unavailable";
 										logSD(discordPtr->guilds[i].channels[c].name);
 									}
 
 									if(!j_complete[c]["topic"].is_null()){
+										logSD("parsing topic, which was not null");
 										discordPtr->guilds[i].channels[c].topic = j_complete[c]["topic"].get<std::string>();
 										logSD(discordPtr->guilds[i].channels[c].topic);
 									}else{
+										logSD("setting topic empty because json.topic was null");
 										discordPtr->guilds[i].channels[c].topic = " ";
 										logSD(discordPtr->guilds[i].channels[c].topic);
 									}
 
 									if(!j_complete[c]["is_private"].is_null()){
+										logSD("parsing is_private, which was not null");
 										discordPtr->guilds[i].channels[c].is_private = j_complete[c]["is_private"].get<bool>();
 										logSD(std::to_string(discordPtr->guilds[i].channels[c].is_private));
 									}else{
+										logSD("setting is_private false because json.is_private was null");
 										discordPtr->guilds[i].channels[c].is_private = false;
 										logSD(std::to_string(discordPtr->guilds[i].channels[c].is_private));
 									}
 
 									if(!j_complete[c]["last_message_id"].is_null()){
+										logSD("parsing last_message_id, which was not null");
 										discordPtr->guilds[i].channels[c].last_message_id = j_complete[c]["last_message_id"].get<std::string>();
 										logSD(discordPtr->guilds[i].channels[c].last_message_id);
 									}else{
+										logSD("setting last_message_id = 00000000 because json.last_message_id was null");
 										discordPtr->guilds[i].channels[c].last_message_id = "00000000";
 										logSD(discordPtr->guilds[i].channels[c].last_message_id);
 									}
 
 									if(!j_complete[c]["permission_overwrites"].is_null()){
 
-
+										logSD("parsing permission_overwrites , which was not null");
 										int p = j_complete[c]["permission_overwrites"].size();
 										discordPtr->guilds[i].channels[c].permission_overwrites.clear();
 										for(int per = 0; per < p; per++){
@@ -951,6 +973,7 @@ void * Discord::thread_loadData(void *arg){
 											}
 
 										}
+										logSD("end of parsing permission_overwrites.");
 
 
 										// TODO : LEARN HOW TO REALLY CHECK PERMISSION !!!
@@ -1003,13 +1026,19 @@ void * Discord::thread_loadData(void *arg){
 
 
 
+								}else{
+									logSD(" channel json is null");
 								}
 
 							}
 
+						}else{
+							
+							logSD(" channels! json is null");
 						}
 					}catch(const std::exception& e){
 
+						logSD(" exception while loading channels");
 						discordPtr->loadedChannels = true;
 					}
 				}

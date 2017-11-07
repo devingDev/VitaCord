@@ -75,7 +75,7 @@ class Discord{
 			std::string last_pin_timestamp;
 			std::string topic;
 			std::string last_message_id;
-			std::string type;
+			int type;
 			std::string id;
 			bool is_private;
 			bool readallowed = true;

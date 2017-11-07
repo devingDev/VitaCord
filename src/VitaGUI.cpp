@@ -914,7 +914,7 @@ void VitaGUI::setChannelBoxes(){
 	channelBoxes.clear();
 	int amount = 0;
 	for(unsigned int i = 0; i < discordPtr->guilds[discordPtr->currentGuild].channels.size() ; i++){
-		if(discordPtr->guilds[discordPtr->currentGuild].channels[i].type == "text" && discordPtr->guilds[discordPtr->currentGuild].channels[i].readallowed){
+		if(discordPtr->guilds[discordPtr->currentGuild].channels[i].type == 0 && discordPtr->guilds[discordPtr->currentGuild].channels[i].readallowed){
 			channelBox boxC;
 			boxC.x = channelScrollX ;
 			boxC.y = 100 + channelScrollY + amount * CHANNEL_HEIGHT;

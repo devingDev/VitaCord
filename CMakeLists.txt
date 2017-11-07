@@ -8,6 +8,17 @@ if(NOT DEFINED CMAKE_TOOLCHAIN_FILE)
   endif()
 endif()
 
+OPTION(DEFINE_DEBUG
+  "Build the project using debugging code"
+  OFF)
+IF(DEFINE_DEBUG)
+  MESSAGE("Adding Debug flag...")
+  ADD_DEFINITIONS(-DDEFINE_DEBUG)
+  #SET(CMAKE_BUILD_TYPE Debug)
+  MESSAGE("Build type is " ${CMAKE_BUILD_TYPE})
+ENDIF(DEFINE_DEBUG)
+
+
 set(SHORT_NAME vita_cord)
 project(${SHORT_NAME})
 include("${VITASDK}/share/vita.cmake" REQUIRED)
