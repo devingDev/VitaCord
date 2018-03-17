@@ -8,12 +8,14 @@
 
 #### Screenshots:
 
-![Login Screen](http://jaynapps.com/imgupload/uploads/c69e490109bff94c47476d653eed83ba.jpg)
-![Sending and Recieving Messages in Servers](http://jaynapps.com/imgupload/uploads/28cfb141750d5c2102b67d292989e01c.jpg)
-![Sending and Recieving Messages in DM's](http://jaynapps.com/imgupload/uploads/f8d5168058e915aa66e49d04e05d98c7.jpg)
-
-#### Downloads:
-
+![Livearea](https://user-images.githubusercontent.com/17065236/37550256-55c6a406-298a-11e8-8cea-fc0167394cf5.jpg) 
+![Login](https://user-images.githubusercontent.com/17065236/37550251-55526244-298a-11e8-85f1-b22568a4e7eb.jpg) 
+![Logging 
+in](https://user-images.githubusercontent.com/17065236/37550252-556d621a-298a-11e8-9646-635594b12c00.jpg) 
+![Server 
+List](https://user-images.githubusercontent.com/17065236/37550253-558e7162-298a-11e8-90e0-4ee36fad1b55.jpg)#### 
+Downloads:
+![Channel](https://user-images.githubusercontent.com/17065236/37550255-55acb24e-298a-11e8-8ab8-740d15a214d8.jpg)
 * [Last Releases](https://github.com/devingDev/VitaCord/releases)
 * [Newest Dev Version](https://github.com/devingDev/VitaCord/raw/master/vita_cord.vpk)
 
